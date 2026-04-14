@@ -125,14 +125,15 @@ export const useTeamData = () => {
 
   const mergeMembers = (defaults, fetched, domain) => {
     const fetchedDomainMembers = fetched.filter(m => m.domain === domain);
-    // Find defaults that aren't in fetched (by name, ignoring case)
-    const unmatchedDefaults = defaults.filter(d => !fetchedDomainMembers.find(f => isMatch(f.name, d.name)));
+    // Find defaults that aren't fetched anywhere (by name, ignoring case)
+    const unmatchedDefaults = defaults.filter(d => !fetched.find(f => isMatch(f.name, d.name)));
     return [...fetchedDomainMembers, ...unmatchedDefaults];
   };
 
   const mergeMembersLists = (defaults, fetched, domains, excludedRoles) => {
     const fetchedDomainMembers = fetched.filter(m => domains.includes(m.domain) && !excludedRoles.includes(m.role));
-    const unmatchedDefaults = defaults.filter(d => !fetchedDomainMembers.find(f => isMatch(f.name, d.name)));
+    // Check against global fetched to avoid duplicating someone who changed domains
+    const unmatchedDefaults = defaults.filter(d => !fetched.find(f => isMatch(f.name, d.name)));
     return [...fetchedDomainMembers, ...unmatchedDefaults];
   };
 
