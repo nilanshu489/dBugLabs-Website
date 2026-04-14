@@ -53,7 +53,6 @@ export const useTeamData = () => {
     { name: 'Dharshini', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
     { name: 'Shashank Singh', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
     { name: 'Piyush Kumar', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
-    { name: 'Ashmit Singh', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
     { name: 'T Sampath Eswar', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
     { name: 'Ritesh Rajpal', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
     { name: 'M Vaishnavi Sai', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
