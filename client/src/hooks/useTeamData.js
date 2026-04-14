@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 import { client, urlFor } from '../sanityClient';
 
+export const ALLOWED_NAMES = [
+  'Gauri Kishore', 'Drishti Yadav', 'Shaurya Ojha', 'Pranay Jain',
+  'Nilanshu Raj', 'Swarali Patil', 'Shivansh Anand Thakur',
+  'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh', 
+  'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan', 
+  'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Aanvi Gandhi',
+  'Dharshini', 'Shashank Singh', 'Piyush Kumar', 
+  'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL', 
+  'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna', 
+  'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey'
+];
+
 export const useTeamData = () => {
   const [boardMembers, setBoardMembers] = useState([
     { name: 'Gauri Kishore', role: 'Secretary', domain: 'Board', bio: '', image: '', socials: {} },

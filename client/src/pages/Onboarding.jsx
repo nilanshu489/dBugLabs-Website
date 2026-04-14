@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Shield, Upload, CheckCircle2, Loader2, Link as LinkIcon, Instagram, Github, Linkedin } from 'lucide-react';
 import { writeClient } from '../sanityClient';
+import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
 const Onboarding = () => {
   const [formData, setFormData] = useState({
@@ -42,6 +43,12 @@ const Onboarding = () => {
 
     if (!file) {
       setErrorMessage('Please upload a profile photo.');
+      return;
+    }
+
+    const isAllowed = ALLOWED_NAMES.some(n => n.toLowerCase() === formData.name.toLowerCase().trim());
+    if (!isAllowed) {
+      setErrorMessage('Name not recognized! Please ensure you type your name exactly as it currently appears on the website.');
       return;
     }
 
