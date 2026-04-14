@@ -62,7 +62,6 @@ export const teamMemberType = {
         { name: 'github', title: 'GitHub URL', type: 'url' },
         { name: 'twitter', title: 'Twitter URL', type: 'url' },
         { name: 'instagram', title: 'Instagram URL', type: 'url' },
-        { name: 'email', title: 'Email Address', type: 'string' },
       ],
     },
   ],

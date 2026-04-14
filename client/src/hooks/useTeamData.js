@@ -23,7 +23,7 @@ export const useTeamData = () => {
 
   const [webDevLead, setWebDevLead] = useState({
     name: 'Nilanshu Raj', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '/team/nilanshu.jpeg',
-    socials: { linkedin: 'https://www.linkedin.com/in/nilanshu-raj-234362380', github: 'https://github.com/nilanshu489', instagram: 'https://www.instagram.com/nilanshu_srivastava16/', email: 'nilanshusinha16@gmail.com' }
+    socials: { linkedin: 'https://www.linkedin.com/in/nilanshu-raj-234362380', github: 'https://github.com/nilanshu489', instagram: 'https://www.instagram.com/nilanshu_srivastava16/' }
   });
 
   const [aimlLead, setAimlLead] = useState({
