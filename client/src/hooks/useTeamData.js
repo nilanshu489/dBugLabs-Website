@@ -10,7 +10,7 @@ export const ALLOWED_NAMES = [
   'Dharshini', 'Shashank Singh', 'Piyush Kumar', 
   'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL', 
   'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna', 
-  'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey'
+  'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R'
 ];
 
 export const useTeamData = () => {
@@ -72,6 +72,7 @@ export const useTeamData = () => {
     { name: 'Shiva Krishna', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
     { name: 'Vanshika Singh', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
     { name: 'Parnika Jain', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
+    { name: 'Mithran G R', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
     { name: 'Mridul Krishna', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
     { name: 'Charan Peddi', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
     { name: 'Radha Raman Panda', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
