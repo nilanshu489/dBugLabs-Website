@@ -41,13 +41,8 @@ const Onboarding = () => {
       return;
     }
 
-    if (!file) {
-      setErrorMessage('Please upload a profile photo.');
-      return;
-    }
-
-    const isAllowed = ALLOWED_NAMES.some(n => n.toLowerCase() === formData.name.toLowerCase().trim());
-    if (!isAllowed) {
+    const exactName = ALLOWED_NAMES.find(n => n.toLowerCase() === formData.name.toLowerCase().trim());
+    if (!exactName) {
       setErrorMessage('Name not recognized! Please ensure you type your name exactly as it currently appears on the website.');
       return;
     }
@@ -55,33 +50,61 @@ const Onboarding = () => {
     try {
       setStatus('uploading');
 
-      // 2. Upload Image to Sanity
-      const imageAsset = await writeClient.assets.upload('image', file, {
-        filename: file.name
-      });
+      // Check if user already exists
+      const existingMember = await writeClient.fetch('*[_type == "teamMember" && name == $name][0]', { name: exactName });
 
-      // 3. Create Team Member Document
-      await writeClient.create({
-        _type: 'teamMember',
-        name: formData.name,
-        role: formData.role,
-        domain: formData.domain,
-        image: {
+      if (!existingMember && !file) {
+        setErrorMessage('Please upload a profile photo for your first submission.');
+        setStatus('idle');
+        return;
+      }
+
+      let imageRef = null;
+      if (file) {
+        const imageAsset = await writeClient.assets.upload('image', file, {
+          filename: file.name
+        });
+        imageRef = {
           _type: 'image',
           asset: {
             _type: 'reference',
             _ref: imageAsset._id
           }
-        },
-        socials: {
-          instagram: formData.instagram,
-          linkedin: formData.linkedin,
-          github: formData.github
+        };
+      }
+
+      const socials = {
+        instagram: formData.instagram,
+        linkedin: formData.linkedin,
+        github: formData.github
+      };
+
+      if (existingMember) {
+        const patch = writeClient.patch(existingMember._id)
+          .set({
+            role: formData.role,
+            domain: formData.domain,
+            socials: socials
+          });
+          
+        if (imageRef) {
+          patch.set({ image: imageRef });
         }
-      });
+        
+        await patch.commit();
+      } else {
+        await writeClient.create({
+          _type: 'teamMember',
+          name: exactName,
+          role: formData.role,
+          domain: formData.domain,
+          image: imageRef,
+          socials: socials
+        });
+      }
 
       setStatus('success');
-      setFormData({ passcode: '', name: '', role: '', domain: 'Web Development', instagram: '', linkedin: '', github: '' });
+      setFormData({ passcode: '', name: '', role: 'Member', domain: 'Web Development', instagram: '', linkedin: '', github: '' });
       setFile(null);
       setFilePreview(null);
       
@@ -166,7 +189,7 @@ const Onboarding = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Profile Picture</label>
+            <label className="text-sm font-medium text-gray-300">Profile Picture (Optional if updating)</label>
             <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-pink-500 transition-colors cursor-pointer relative group">
               <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
               {filePreview ? (
