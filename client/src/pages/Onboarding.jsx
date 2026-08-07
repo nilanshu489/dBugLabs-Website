@@ -1,19 +1,21 @@
 import { useState } from 'react';
-import { Shield, Upload, CheckCircle2, Loader2, Crown, User, Instagram, Github, Linkedin, Twitter } from 'lucide-react';
+import { Shield, Upload, CheckCircle2, Loader2, UserCheck, Instagram, Github, Linkedin, Twitter } from 'lucide-react';
 import { writeClient } from '../sanityClient';
 import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
-const LEAD_ROLES = [
-  { role: 'Secretary', domain: 'Board' },
-  { role: 'Joint Secretary', domain: 'Board' },
-  { role: 'Technical Lead', domain: 'Board' },
-  { role: 'Corporate Lead', domain: 'Board' },
-  { role: 'Web Dev Lead', domain: 'Web Development' },
-  { role: 'AI/ML Lead', domain: 'AI/ML' },
-  { role: 'Events Lead', domain: 'Events' },
-  { role: 'Sponsorship Lead', domain: 'Sponsorship' },
-  { role: 'PR Lead', domain: 'Public Relations' },
-  { role: 'Creatives Lead', domain: 'Creatives' },
+const ALL_ROLES = [
+  { role: 'Member', isLead: false, domain: 'Web Development' },
+  { role: 'Core Member', isLead: false, domain: 'Web Development' },
+  { role: 'Secretary', isLead: true, domain: 'Board' },
+  { role: 'Joint Secretary', isLead: true, domain: 'Board' },
+  { role: 'Technical Lead', isLead: true, domain: 'Board' },
+  { role: 'Corporate Lead', isLead: true, domain: 'Board' },
+  { role: 'Web Dev Lead', isLead: true, domain: 'Web Development' },
+  { role: 'AI/ML Lead', isLead: true, domain: 'AI/ML' },
+  { role: 'Events Lead', isLead: true, domain: 'Events' },
+  { role: 'Sponsorship Lead', isLead: true, domain: 'Sponsorship' },
+  { role: 'PR Lead', isLead: true, domain: 'Public Relations' },
+  { role: 'Creatives Lead', isLead: true, domain: 'Creatives' },
 ];
 
 const MEMBER_DOMAINS = [
@@ -27,18 +29,18 @@ const MEMBER_DOMAINS = [
 ];
 
 const Onboarding = () => {
-  const [positionType, setPositionType] = useState('member'); // 'member' or 'lead'
   const [formData, setFormData] = useState({
     passcode: '',
     name: '',
     role: 'Member',
-    leadRole: 'Secretary',
+    customRole: '',
     domain: 'Web Development',
     instagram: '',
     linkedin: '',
     github: '',
     twitter: ''
   });
+  const [isCustomRole, setIsCustomRole] = useState(false);
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   
@@ -47,34 +49,23 @@ const Onboarding = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'leadRole') {
-      const match = LEAD_ROLES.find(r => r.role === value);
-      setFormData(prev => ({
-        ...prev,
-        leadRole: value,
-        domain: match ? match.domain : prev.domain
-      }));
+
+    if (name === 'role') {
+      if (value === 'Custom') {
+        setIsCustomRole(true);
+        setFormData(prev => ({ ...prev, role: 'Custom', customRole: '' }));
+      } else {
+        setIsCustomRole(false);
+        const match = ALL_ROLES.find(r => r.role === value);
+        setFormData(prev => ({
+          ...prev,
+          role: value,
+          customRole: '',
+          domain: match?.isLead ? match.domain : prev.domain
+        }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handlePositionTypeChange = (type) => {
-    setPositionType(type);
-    setErrorMessage('');
-    if (type === 'lead') {
-      const match = LEAD_ROLES.find(r => r.role === formData.leadRole) || LEAD_ROLES[0];
-      setFormData(prev => ({
-        ...prev,
-        role: match.role,
-        domain: match.domain
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        role: 'Member',
-        domain: 'Web Development'
-      }));
     }
   };
 
@@ -103,6 +94,10 @@ const Onboarding = () => {
       return;
     }
 
+    const finalRole = isCustomRole ? (formData.customRole.trim() || 'Member') : formData.role;
+    const matchedRoleObj = ALL_ROLES.find(r => r.role === finalRole);
+    const isLeadRole = matchedRoleObj ? matchedRoleObj.isLead : false;
+
     try {
       setStatus('uploading');
 
@@ -128,19 +123,17 @@ const Onboarding = () => {
         twitter: formData.twitter ? formData.twitter.trim() : ''
       };
 
-      if (positionType === 'lead') {
-        // --- LEAD / BOARD ONBOARDING ---
-        const activeRole = formData.leadRole;
-        const activeDomain = LEAD_ROLES.find(r => r.role === activeRole)?.domain || formData.domain;
+      if (isLeadRole) {
+        // --- LEAD / BOARD DOCUMENT TYPE ---
+        const activeDomain = matchedRoleObj?.domain || formData.domain;
 
-        // Check if document already exists by role or name
         const existingLead = await writeClient.fetch(
           '*[_type == "boardAndLead" && (role == $role || name == $name)][0]',
-          { role: activeRole, name: inputName }
+          { role: finalRole, name: inputName }
         );
 
         if (!existingLead && !imageRef) {
-          setErrorMessage('Please upload a profile photo for your lead profile.');
+          setErrorMessage('Please upload a profile photo for your profile.');
           setStatus('idle');
           return;
         }
@@ -148,7 +141,7 @@ const Onboarding = () => {
         if (existingLead) {
           const patch = writeClient.patch(existingLead._id).set({
             name: inputName,
-            role: activeRole,
+            role: finalRole,
             domain: activeDomain,
             socials: socials
           });
@@ -160,14 +153,14 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'boardAndLead',
             name: inputName,
-            role: activeRole,
+            role: finalRole,
             domain: activeDomain,
             image: imageRef,
             socials: socials
           });
         }
       } else {
-        // --- MEMBER ONBOARDING ---
+        // --- REGULAR MEMBER DOCUMENT TYPE ---
         const exactName = ALLOWED_NAMES.find(n => n.toLowerCase() === inputName.toLowerCase()) || inputName;
 
         const existingMember = await writeClient.fetch(
@@ -176,7 +169,7 @@ const Onboarding = () => {
         );
 
         if (!existingMember && !imageRef) {
-          setErrorMessage('Please upload a profile photo for your member profile.');
+          setErrorMessage('Please upload a profile photo for your profile.');
           setStatus('idle');
           return;
         }
@@ -184,7 +177,7 @@ const Onboarding = () => {
         if (existingMember) {
           const patch = writeClient.patch(existingMember._id).set({
             name: exactName,
-            role: 'Member',
+            role: finalRole,
             domain: formData.domain,
             socials: socials
           });
@@ -196,7 +189,7 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'teamMember',
             name: exactName,
-            role: 'Member',
+            role: finalRole,
             domain: formData.domain,
             image: imageRef,
             socials: socials
@@ -209,13 +202,14 @@ const Onboarding = () => {
         passcode: '',
         name: '',
         role: 'Member',
-        leadRole: 'Secretary',
+        customRole: '',
         domain: 'Web Development',
         instagram: '',
         linkedin: '',
         github: '',
         twitter: ''
       });
+      setIsCustomRole(false);
       setFile(null);
       setFilePreview(null);
       
@@ -263,35 +257,6 @@ const Onboarding = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-gray-900/90 border border-purple-500/20 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl">
-          {/* Position Type Selector Toggle */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300 block mb-2">I am registering as:</label>
-            <div className="grid grid-cols-2 gap-3 p-1.5 bg-black/60 border border-gray-800 rounded-xl">
-              <button
-                type="button"
-                onClick={() => handlePositionTypeChange('member')}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-all ${
-                  positionType === 'member'
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <User className="w-4 h-4" /> Team Member
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePositionTypeChange('lead')}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm transition-all ${
-                  positionType === 'lead'
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Crown className="w-4 h-4 text-amber-400" /> Board / Lead
-              </button>
-            </div>
-          </div>
-
           {/* Passcode Security Field */}
           <div className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-5">
             <label className="flex items-center gap-2 text-sm font-medium text-purple-300 mb-2">
@@ -323,57 +288,69 @@ const Onboarding = () => {
               />
             </div>
             
-            {positionType === 'lead' ? (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
-                  <Crown className="w-4 h-4 text-amber-400" /> Lead Position
-                </label>
-                <select
-                  name="leadRole"
-                  value={formData.leadRole}
-                  onChange={handleInputChange}
-                  className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none"
-                >
-                  {LEAD_ROLES.map(r => (
-                    <option key={r.role} value={r.role}>{r.role}</option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Role</label>
-                <input 
-                  type="text" 
-                  value="Member" 
-                  readOnly 
-                  className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-gray-400 cursor-not-allowed" 
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
+                <UserCheck className="w-4 h-4 text-pink-400" /> Position / Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none cursor-pointer"
+              >
+                <optgroup label="Member Roles">
+                  <option value="Member">Member</option>
+                  <option value="Core Member">Core Member</option>
+                </optgroup>
+                <optgroup label="Board & Lead Positions">
+                  <option value="Secretary">Secretary</option>
+                  <option value="Joint Secretary">Joint Secretary</option>
+                  <option value="Technical Lead">Technical Lead</option>
+                  <option value="Corporate Lead">Corporate Lead</option>
+                  <option value="Web Dev Lead">Web Dev Lead</option>
+                  <option value="AI/ML Lead">AI/ML Lead</option>
+                  <option value="Events Lead">Events Lead</option>
+                  <option value="Sponsorship Lead">Sponsorship Lead</option>
+                  <option value="PR Lead">PR Lead</option>
+                  <option value="Creatives Lead">Creatives Lead</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Custom">Custom Role...</option>
+                </optgroup>
+              </select>
+            </div>
           </div>
+
+          {/* Custom Role Text Input if Custom selected */}
+          {isCustomRole && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-pink-400">Specify Custom Role Title</label>
+              <input 
+                required 
+                type="text" 
+                name="customRole" 
+                value={formData.customRole} 
+                onChange={handleInputChange} 
+                className="w-full bg-black/50 border border-pink-500/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors" 
+                placeholder="e.g. Senior Tech Adviser, UI Designer, etc." 
+              />
+            </div>
+          )}
 
           {/* Domain Selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">Domain / Department</label>
-            {positionType === 'lead' ? (
-              <input
-                type="text"
-                value={formData.domain}
-                readOnly
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-gray-400 cursor-not-allowed"
-              />
-            ) : (
-              <select 
-                name="domain" 
-                value={formData.domain} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none"
-              >
-                {MEMBER_DOMAINS.map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            )}
+            <select 
+              name="domain" 
+              value={formData.domain} 
+              onChange={handleInputChange} 
+              className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none cursor-pointer"
+            >
+              <option value="Board">Board</option>
+              {MEMBER_DOMAINS.map(d => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
           </div>
 
           {/* Image Upload */}
@@ -457,7 +434,7 @@ const Onboarding = () => {
             {status === 'uploading' ? (
               <><Loader2 className="w-5 h-5 animate-spin" /> Connecting Profile to Sanity CMS...</>
             ) : (
-              positionType === 'lead' ? "Connect Lead Profile" : "Connect Member Profile"
+              "Connect Profile"
             )}
           </button>
         </form>
