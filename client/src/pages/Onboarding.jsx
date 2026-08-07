@@ -5,7 +5,6 @@ import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
 const ALL_ROLES = [
   { role: 'Member', isLead: false, domain: 'Web Development' },
-  { role: 'Core Member', isLead: false, domain: 'Web Development' },
   { role: 'Secretary', isLead: true, domain: 'Board' },
   { role: 'Joint Secretary', isLead: true, domain: 'Board' },
   { role: 'Technical Lead', isLead: true, domain: 'Board' },
@@ -286,9 +285,8 @@ const Onboarding = () => {
                 onChange={handleInputChange}
                 className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
               >
-                <optgroup label="General Member Roles">
+                <optgroup label="General Member">
                   <option value="Member">Member</option>
-                  <option value="Core Member">Core Member</option>
                 </optgroup>
                 <optgroup label="Board & Lead Positions">
                   <option value="Secretary">Secretary</option>
