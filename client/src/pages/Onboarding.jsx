@@ -3,17 +3,19 @@ import { Shield, Upload, CheckCircle2, Loader2, UserCheck, Instagram, Github, Li
 import { writeClient } from '../sanityClient';
 import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
-const KNOWN_LEAD_ROLES = [
-  { role: 'Secretary', domain: 'Board' },
-  { role: 'Joint Secretary', domain: 'Board' },
-  { role: 'Technical Lead', domain: 'Board' },
-  { role: 'Corporate Lead', domain: 'Board' },
-  { role: 'Web Dev Lead', domain: 'Web Development' },
-  { role: 'AI/ML Lead', domain: 'AI/ML' },
-  { role: 'Events Lead', domain: 'Events' },
-  { role: 'Sponsorship Lead', domain: 'Sponsorship' },
-  { role: 'PR Lead', domain: 'Public Relations' },
-  { role: 'Creatives Lead', domain: 'Creatives' },
+const ALL_ROLES = [
+  { role: 'Member', isLead: false, domain: 'Web Development' },
+  { role: 'Core Member', isLead: false, domain: 'Web Development' },
+  { role: 'Secretary', isLead: true, domain: 'Board' },
+  { role: 'Joint Secretary', isLead: true, domain: 'Board' },
+  { role: 'Technical Lead', isLead: true, domain: 'Board' },
+  { role: 'Corporate Lead', isLead: true, domain: 'Board' },
+  { role: 'Web Dev Lead', isLead: true, domain: 'Web Development' },
+  { role: 'AI/ML Lead', isLead: true, domain: 'AI/ML' },
+  { role: 'Events Lead', isLead: true, domain: 'Events' },
+  { role: 'Sponsorship Lead', isLead: true, domain: 'Sponsorship' },
+  { role: 'PR Lead', isLead: true, domain: 'Public Relations' },
+  { role: 'Creatives Lead', isLead: true, domain: 'Creatives' },
 ];
 
 const MEMBER_DOMAINS = [
@@ -46,11 +48,11 @@ const Onboarding = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'role') {
-      const match = KNOWN_LEAD_ROLES.find(r => r.role.toLowerCase() === value.trim().toLowerCase());
+      const match = ALL_ROLES.find(r => r.role === value);
       setFormData(prev => ({
         ...prev,
         role: value,
-        domain: match ? match.domain : prev.domain
+        domain: match?.isLead ? match.domain : prev.domain
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -82,9 +84,9 @@ const Onboarding = () => {
       return;
     }
 
-    const inputRole = formData.role.trim() || 'Member';
-    const matchedLeadObj = KNOWN_LEAD_ROLES.find(r => r.role.toLowerCase() === inputRole.toLowerCase());
-    const isLeadRole = Boolean(matchedLeadObj);
+    const selectedRole = formData.role;
+    const matchedRoleObj = ALL_ROLES.find(r => r.role === selectedRole);
+    const isLeadRole = matchedRoleObj ? matchedRoleObj.isLead : false;
 
     try {
       setStatus('uploading');
@@ -113,11 +115,11 @@ const Onboarding = () => {
 
       if (isLeadRole) {
         // --- LEAD / BOARD DOCUMENT TYPE ---
-        const activeDomain = matchedLeadObj ? matchedLeadObj.domain : formData.domain;
+        const activeDomain = matchedRoleObj ? matchedRoleObj.domain : formData.domain;
 
         const existingLead = await writeClient.fetch(
           '*[_type == "boardAndLead" && (role == $role || name == $name)][0]',
-          { role: matchedLeadObj.role, name: inputName }
+          { role: selectedRole, name: inputName }
         );
 
         if (!existingLead && !imageRef) {
@@ -129,7 +131,7 @@ const Onboarding = () => {
         if (existingLead) {
           const patch = writeClient.patch(existingLead._id).set({
             name: inputName,
-            role: matchedLeadObj.role,
+            role: selectedRole,
             domain: activeDomain,
             socials: socials
           });
@@ -141,7 +143,7 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'boardAndLead',
             name: inputName,
-            role: matchedLeadObj.role,
+            role: selectedRole,
             domain: activeDomain,
             image: imageRef,
             socials: socials
@@ -165,7 +167,7 @@ const Onboarding = () => {
         if (existingMember) {
           const patch = writeClient.patch(existingMember._id).set({
             name: exactName,
-            role: inputRole,
+            role: selectedRole,
             domain: formData.domain,
             socials: socials
           });
@@ -177,7 +179,7 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'teamMember',
             name: exactName,
-            role: inputRole,
+            role: selectedRole,
             domain: formData.domain,
             image: imageRef,
             socials: socials
@@ -278,30 +280,29 @@ const Onboarding = () => {
               <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-pink-400" /> Position / Role
               </label>
-              <input
-                required
-                type="text"
+              <select
                 name="role"
-                list="roles-list"
                 value={formData.role}
                 onChange={handleInputChange}
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
-                placeholder="Type or select role (e.g. Member, Secretary, Technical Lead)"
-              />
-              <datalist id="roles-list">
-                <option value="Member" />
-                <option value="Core Member" />
-                <option value="Secretary" />
-                <option value="Joint Secretary" />
-                <option value="Technical Lead" />
-                <option value="Corporate Lead" />
-                <option value="Web Dev Lead" />
-                <option value="AI/ML Lead" />
-                <option value="Events Lead" />
-                <option value="Sponsorship Lead" />
-                <option value="PR Lead" />
-                <option value="Creatives Lead" />
-              </datalist>
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
+              >
+                <optgroup label="General Member Roles">
+                  <option value="Member">Member</option>
+                  <option value="Core Member">Core Member</option>
+                </optgroup>
+                <optgroup label="Board & Lead Positions">
+                  <option value="Secretary">Secretary</option>
+                  <option value="Joint Secretary">Joint Secretary</option>
+                  <option value="Technical Lead">Technical Lead</option>
+                  <option value="Corporate Lead">Corporate Lead</option>
+                  <option value="Web Dev Lead">Web Dev Lead</option>
+                  <option value="AI/ML Lead">AI/ML Lead</option>
+                  <option value="Events Lead">Events Lead</option>
+                  <option value="Sponsorship Lead">Sponsorship Lead</option>
+                  <option value="PR Lead">PR Lead</option>
+                  <option value="Creatives Lead">Creatives Lead</option>
+                </optgroup>
+              </select>
             </div>
           </div>
 
@@ -312,7 +313,7 @@ const Onboarding = () => {
               name="domain" 
               value={formData.domain} 
               onChange={handleInputChange} 
-              className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none cursor-pointer"
+              className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
             >
               <option value="Board">Board</option>
               {MEMBER_DOMAINS.map(d => (
