@@ -3,19 +3,17 @@ import { Shield, Upload, CheckCircle2, Loader2, UserCheck, Instagram, Github, Li
 import { writeClient } from '../sanityClient';
 import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
-const ALL_ROLES = [
-  { role: 'Member', isLead: false, domain: 'Web Development' },
-  { role: 'Core Member', isLead: false, domain: 'Web Development' },
-  { role: 'Secretary', isLead: true, domain: 'Board' },
-  { role: 'Joint Secretary', isLead: true, domain: 'Board' },
-  { role: 'Technical Lead', isLead: true, domain: 'Board' },
-  { role: 'Corporate Lead', isLead: true, domain: 'Board' },
-  { role: 'Web Dev Lead', isLead: true, domain: 'Web Development' },
-  { role: 'AI/ML Lead', isLead: true, domain: 'AI/ML' },
-  { role: 'Events Lead', isLead: true, domain: 'Events' },
-  { role: 'Sponsorship Lead', isLead: true, domain: 'Sponsorship' },
-  { role: 'PR Lead', isLead: true, domain: 'Public Relations' },
-  { role: 'Creatives Lead', isLead: true, domain: 'Creatives' },
+const KNOWN_LEAD_ROLES = [
+  { role: 'Secretary', domain: 'Board' },
+  { role: 'Joint Secretary', domain: 'Board' },
+  { role: 'Technical Lead', domain: 'Board' },
+  { role: 'Corporate Lead', domain: 'Board' },
+  { role: 'Web Dev Lead', domain: 'Web Development' },
+  { role: 'AI/ML Lead', domain: 'AI/ML' },
+  { role: 'Events Lead', domain: 'Events' },
+  { role: 'Sponsorship Lead', domain: 'Sponsorship' },
+  { role: 'PR Lead', domain: 'Public Relations' },
+  { role: 'Creatives Lead', domain: 'Creatives' },
 ];
 
 const MEMBER_DOMAINS = [
@@ -33,14 +31,12 @@ const Onboarding = () => {
     passcode: '',
     name: '',
     role: 'Member',
-    customRole: '',
     domain: 'Web Development',
     instagram: '',
     linkedin: '',
     github: '',
     twitter: ''
   });
-  const [isCustomRole, setIsCustomRole] = useState(false);
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   
@@ -49,21 +45,13 @@ const Onboarding = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     if (name === 'role') {
-      if (value === 'Custom') {
-        setIsCustomRole(true);
-        setFormData(prev => ({ ...prev, role: 'Custom', customRole: '' }));
-      } else {
-        setIsCustomRole(false);
-        const match = ALL_ROLES.find(r => r.role === value);
-        setFormData(prev => ({
-          ...prev,
-          role: value,
-          customRole: '',
-          domain: match?.isLead ? match.domain : prev.domain
-        }));
-      }
+      const match = KNOWN_LEAD_ROLES.find(r => r.role.toLowerCase() === value.trim().toLowerCase());
+      setFormData(prev => ({
+        ...prev,
+        role: value,
+        domain: match ? match.domain : prev.domain
+      }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -94,9 +82,9 @@ const Onboarding = () => {
       return;
     }
 
-    const finalRole = isCustomRole ? (formData.customRole.trim() || 'Member') : formData.role;
-    const matchedRoleObj = ALL_ROLES.find(r => r.role === finalRole);
-    const isLeadRole = matchedRoleObj ? matchedRoleObj.isLead : false;
+    const inputRole = formData.role.trim() || 'Member';
+    const matchedLeadObj = KNOWN_LEAD_ROLES.find(r => r.role.toLowerCase() === inputRole.toLowerCase());
+    const isLeadRole = Boolean(matchedLeadObj);
 
     try {
       setStatus('uploading');
@@ -125,11 +113,11 @@ const Onboarding = () => {
 
       if (isLeadRole) {
         // --- LEAD / BOARD DOCUMENT TYPE ---
-        const activeDomain = matchedRoleObj?.domain || formData.domain;
+        const activeDomain = matchedLeadObj ? matchedLeadObj.domain : formData.domain;
 
         const existingLead = await writeClient.fetch(
           '*[_type == "boardAndLead" && (role == $role || name == $name)][0]',
-          { role: finalRole, name: inputName }
+          { role: matchedLeadObj.role, name: inputName }
         );
 
         if (!existingLead && !imageRef) {
@@ -141,7 +129,7 @@ const Onboarding = () => {
         if (existingLead) {
           const patch = writeClient.patch(existingLead._id).set({
             name: inputName,
-            role: finalRole,
+            role: matchedLeadObj.role,
             domain: activeDomain,
             socials: socials
           });
@@ -153,7 +141,7 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'boardAndLead',
             name: inputName,
-            role: finalRole,
+            role: matchedLeadObj.role,
             domain: activeDomain,
             image: imageRef,
             socials: socials
@@ -177,7 +165,7 @@ const Onboarding = () => {
         if (existingMember) {
           const patch = writeClient.patch(existingMember._id).set({
             name: exactName,
-            role: finalRole,
+            role: inputRole,
             domain: formData.domain,
             socials: socials
           });
@@ -189,7 +177,7 @@ const Onboarding = () => {
           await writeClient.create({
             _type: 'teamMember',
             name: exactName,
-            role: finalRole,
+            role: inputRole,
             domain: formData.domain,
             image: imageRef,
             socials: socials
@@ -202,14 +190,12 @@ const Onboarding = () => {
         passcode: '',
         name: '',
         role: 'Member',
-        customRole: '',
         domain: 'Web Development',
         instagram: '',
         linkedin: '',
         github: '',
         twitter: ''
       });
-      setIsCustomRole(false);
       setFile(null);
       setFilePreview(null);
       
@@ -292,50 +278,32 @@ const Onboarding = () => {
               <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-pink-400" /> Position / Role
               </label>
-              <select
+              <input
+                required
+                type="text"
                 name="role"
+                list="roles-list"
                 value={formData.role}
                 onChange={handleInputChange}
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors appearance-none cursor-pointer"
-              >
-                <optgroup label="Member Roles">
-                  <option value="Member">Member</option>
-                  <option value="Core Member">Core Member</option>
-                </optgroup>
-                <optgroup label="Board & Lead Positions">
-                  <option value="Secretary">Secretary</option>
-                  <option value="Joint Secretary">Joint Secretary</option>
-                  <option value="Technical Lead">Technical Lead</option>
-                  <option value="Corporate Lead">Corporate Lead</option>
-                  <option value="Web Dev Lead">Web Dev Lead</option>
-                  <option value="AI/ML Lead">AI/ML Lead</option>
-                  <option value="Events Lead">Events Lead</option>
-                  <option value="Sponsorship Lead">Sponsorship Lead</option>
-                  <option value="PR Lead">PR Lead</option>
-                  <option value="Creatives Lead">Creatives Lead</option>
-                </optgroup>
-                <optgroup label="Other">
-                  <option value="Custom">Custom Role...</option>
-                </optgroup>
-              </select>
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
+                placeholder="Type or select role (e.g. Member, Secretary, Technical Lead)"
+              />
+              <datalist id="roles-list">
+                <option value="Member" />
+                <option value="Core Member" />
+                <option value="Secretary" />
+                <option value="Joint Secretary" />
+                <option value="Technical Lead" />
+                <option value="Corporate Lead" />
+                <option value="Web Dev Lead" />
+                <option value="AI/ML Lead" />
+                <option value="Events Lead" />
+                <option value="Sponsorship Lead" />
+                <option value="PR Lead" />
+                <option value="Creatives Lead" />
+              </datalist>
             </div>
           </div>
-
-          {/* Custom Role Text Input if Custom selected */}
-          {isCustomRole && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-pink-400">Specify Custom Role Title</label>
-              <input 
-                required 
-                type="text" 
-                name="customRole" 
-                value={formData.customRole} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-pink-500/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors" 
-                placeholder="e.g. Senior Tech Adviser, UI Designer, etc." 
-              />
-            </div>
-          )}
 
           {/* Domain Selection */}
           <div className="space-y-2">
