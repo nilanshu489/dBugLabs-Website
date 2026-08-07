@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { client, urlFor } from '../sanityClient';
 
+// Allowed names for regular member onboarding (/join)
 export const ALLOWED_NAMES = [
-  'Gauri Kishore', 'Drishti Yadav', 'Shaurya Ojha', 'Pranay Jain',
-  'Nilanshu Raj', 'Swarali Patil', 'Shivansh Anand Thakur',
   'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh', 
   'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan', 
   'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Aanvi Gandhi',
@@ -13,17 +12,25 @@ export const ALLOWED_NAMES = [
   'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R'
 ];
 
+// Allowed names for board/lead onboarding (/lead-onboarding)
+export const ALLOWED_LEAD_NAMES = [
+  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead',
+  'Web Dev Lead', 'AI/ML Lead', 'Events Lead', 'Sponsorship Lead',
+  'PR Lead', 'Creatives Lead'
+];
+
 export const useTeamData = () => {
+  // Board members — placeholder defaults, overridden by Sanity boardAndLead data
   const [boardMembers, setBoardMembers] = useState([
-    { name: 'Gauri Kishore', role: 'Secretary', domain: 'Board', bio: '', image: '', socials: {} },
-    { name: 'Drishti Yadav', role: 'Joint Secretary', domain: 'Board', bio: '', image: '', socials: {} },
-    { name: 'Shaurya Ojha', role: 'Technical Lead', domain: 'Board', bio: '', image: '/team/shaurya.jpeg', imageScale: 1.25, imagePosition: 'center 80%', socials: {} },
-    { name: 'Pranay Jain', role: 'Corporate Lead', domain: 'Board', bio: '', image: '', socials: {} }
+    { name: 'To Be Announced', role: 'Secretary', domain: 'Board', bio: '', image: '', socials: {} },
+    { name: 'To Be Announced', role: 'Joint Secretary', domain: 'Board', bio: '', image: '', socials: {} },
+    { name: 'To Be Announced', role: 'Technical Lead', domain: 'Board', bio: '', image: '', socials: {} },
+    { name: 'To Be Announced', role: 'Corporate Lead', domain: 'Board', bio: '', image: '', socials: {} }
   ]);
 
+  // Lead positions — placeholder defaults, overridden by Sanity boardAndLead data
   const [webDevLead, setWebDevLead] = useState({
-    name: 'Nilanshu Raj', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '/team/nilanshu.jpeg',
-    socials: { linkedin: 'https://www.linkedin.com/in/nilanshu-raj-234362380', github: 'https://github.com/nilanshu489', instagram: 'https://www.instagram.com/nilanshu_srivastava16/' }
+    name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {}
   });
 
   const [aimlLead, setAimlLead] = useState({
@@ -46,11 +53,11 @@ export const useTeamData = () => {
   ]);
 
   const [eventsLead, setEventsLead] = useState({
-    name: 'Swarali Patil', role: 'Events Lead', domain: 'Events', bio: '', image: '/team/swarali.jpeg', imagePosition: '80% center', socials: {}
+    name: 'To Be Announced', role: 'Events Lead', domain: 'Events', bio: '', image: '', socials: {}
   });
 
   const [sponsorshipLead, setSponsorshipLead] = useState({
-    name: 'Shivansh Anand Thakur', role: 'Sponsorship Lead', domain: 'Sponsorship', bio: '', image: '/team/shivansh.jpeg', socials: {}
+    name: 'To Be Announced', role: 'Sponsorship Lead', domain: 'Sponsorship', bio: '', image: '', socials: {}
   });
 
   const [prLead, setPrLead] = useState({
@@ -82,52 +89,78 @@ export const useTeamData = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch Sanity Data
+  // Fetch Sanity Data — regular members
   useEffect(() => {
-    client.fetch('*[_type == "teamMember"]')
-      .then((data) => {
-        if (!data || data.length === 0) {
-          setIsLoading(false);
-          return;
+    const fetchAll = async () => {
+      try {
+        // Fetch regular team members
+        const memberData = await client.fetch('*[_type == "teamMember"]');
+        if (memberData && memberData.length > 0) {
+          const formattedMembers = memberData.map(member => ({
+            name: member.name,
+            role: member.role,
+            domain: member.domain,
+            image: member.image ? urlFor(member.image).url() : '',
+            imageScale: member.imageScale,
+            imagePosition: member.imagePosition,
+            socials: member.socials || {}
+          }));
+
+          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'AI/ML', 'Technical'], ['Web Dev Lead', 'AI/ML Lead']));
+          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations'], ['Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead']));
         }
 
-        const formattedMembers = data.map(member => ({
-          name: member.name,
-          role: member.role,
-          domain: member.domain,
-          image: member.image ? urlFor(member.image).url() : '',
-          imageScale: member.imageScale,
-          imagePosition: member.imagePosition,
-          socials: member.socials || {}
-        }));
+        // Fetch board & lead data from new schema
+        const leadData = await client.fetch('*[_type == "boardAndLead"]');
+        if (leadData && leadData.length > 0) {
+          const formattedLeads = leadData.map(member => ({
+            name: member.name,
+            role: member.role,
+            domain: member.domain,
+            image: member.image ? urlFor(member.image).url() : '',
+            imageScale: member.imageScale,
+            imagePosition: member.imagePosition,
+            socials: member.socials || {}
+          }));
 
-        setBoardMembers(prev => mergeMembers(prev, formattedMembers, 'Board'));
-        setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'AI/ML', 'Technical'], ['Web Dev Lead', 'AI/ML Lead']));
-        setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations'], ['Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead']));
+          // Update board members
+          setBoardMembers(prev => {
+            return prev.map(placeholder => {
+              const match = formattedLeads.find(l => l.role === placeholder.role);
+              return match || placeholder;
+            });
+          });
 
-        const fetchLead = (domain, exactRole) => formattedMembers.find(m => m.domain === domain && m.role === exactRole);
+          // Update leads
+          const findLead = (role) => formattedLeads.find(m => m.role === role);
 
-        const wdl = fetchLead('Web Development', 'Web Dev Lead');
-        if (wdl) setWebDevLead(wdl);
+          const wdl = findLead('Web Dev Lead');
+          if (wdl) setWebDevLead(wdl);
 
-        const aml = fetchLead('AI/ML', 'AI/ML Lead');
-        if (aml) setAimlLead(aml);
+          const aml = findLead('AI/ML Lead');
+          if (aml) setAimlLead(aml);
 
-        const evl = fetchLead('Events', 'Events Lead');
-        if (evl) setEventsLead(evl);
+          const evl = findLead('Events Lead');
+          if (evl) setEventsLead(evl);
 
-        const spl = fetchLead('Sponsorship', 'Sponsorship Lead');
-        if (spl) setSponsorshipLead(spl);
+          const spl = findLead('Sponsorship Lead');
+          if (spl) setSponsorshipLead(spl);
 
-        const prl = fetchLead('Public Relations', 'PR Lead');
-        if (prl) setPrLead(prl);
+          const prl = findLead('PR Lead');
+          if (prl) setPrLead(prl);
 
-        const crl = fetchLead('Creatives', 'Creatives Lead');
-        if (crl) setCreativesLead(crl);
+          const crl = findLead('Creatives Lead');
+          if (crl) setCreativesLead(crl);
+        }
 
         setIsLoading(false);
-      })
-      .catch(console.error);
+      } catch (err) {
+        console.error(err);
+        setIsLoading(false);
+      }
+    };
+
+    fetchAll();
   }, []);
 
   // Helper functions to merge hardcoded defaults with Sanity data

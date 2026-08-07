@@ -1,0 +1,90 @@
+export const boardAndLeadType = {
+  name: 'boardAndLead',
+  title: 'Board & Lead',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Full Name',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'role',
+      title: 'Position / Role',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Secretary', value: 'Secretary' },
+          { title: 'Joint Secretary', value: 'Joint Secretary' },
+          { title: 'Technical Lead', value: 'Technical Lead' },
+          { title: 'Corporate Lead', value: 'Corporate Lead' },
+          { title: 'Web Dev Lead', value: 'Web Dev Lead' },
+          { title: 'AI/ML Lead', value: 'AI/ML Lead' },
+          { title: 'Events Lead', value: 'Events Lead' },
+          { title: 'Sponsorship Lead', value: 'Sponsorship Lead' },
+          { title: 'PR Lead', value: 'PR Lead' },
+          { title: 'Creatives Lead', value: 'Creatives Lead' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'domain',
+      title: 'Domain',
+      type: 'string',
+      description: 'Auto-set based on role. Board roles → "Board", otherwise derived from the lead role.',
+      options: {
+        list: [
+          { title: 'Board', value: 'Board' },
+          { title: 'Web Development', value: 'Web Development' },
+          { title: 'AI/ML', value: 'AI/ML' },
+          { title: 'Events', value: 'Events' },
+          { title: 'Sponsorship', value: 'Sponsorship' },
+          { title: 'Public Relations', value: 'Public Relations' },
+          { title: 'Creatives', value: 'Creatives' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'image',
+      title: 'Profile Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'imageScale',
+      title: 'Image Zoom Scale (Optional)',
+      type: 'number',
+      description: 'Enter a number (like 1.25) to zoom the image inside the circle, or leave blank.',
+    },
+    {
+      name: 'imagePosition',
+      title: 'Image Focus Position (Optional)',
+      type: 'string',
+      description: 'Enter a value like "center 80%" to adjust framing, or leave blank.',
+    },
+    {
+      name: 'socials',
+      title: 'Social Media Links',
+      type: 'object',
+      fields: [
+        { name: 'linkedin', title: 'LinkedIn URL', type: 'url' },
+        { name: 'github', title: 'GitHub URL', type: 'url' },
+        { name: 'twitter', title: 'Twitter URL', type: 'url' },
+        { name: 'instagram', title: 'Instagram URL', type: 'url' },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'role',
+      media: 'image',
+    },
+  },
+};

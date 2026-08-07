@@ -8,12 +8,14 @@ export const client = createClient({
   apiVersion: '2024-04-14', // use current date (YYYY-MM-DD) to target the latest API version
 });
 
+const SANITY_TOKEN = 'skCrEHe4TfjZ9AoQRK2cuc0Y0Zb9FSjLutAjYRy2daCfDTKFAbmYiYKl18fR00HSW3WW8mQzMzeHnnKRbjD7J7AjSRW8DRZ2ZxeInc0g0PFfrZ0TIglB9lmhRi4V0xHZpBNCYDTUEPuEOCSwgkqo57t5RBHLrKCnm5TLH8ojA5KXFgNekoHW';
+
 export const writeClient = createClient({
   projectId: 'ueahhip3',
   dataset: 'production',
   useCdn: false, // Writing should never be cached
   apiVersion: '2024-04-14',
-  token: import.meta.env.VITE_SANITY_TOKEN,
+  token: (import.meta.env.VITE_SANITY_TOKEN || SANITY_TOKEN).trim(),
 });
 
 const builder = imageUrlBuilder(client);

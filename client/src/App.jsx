@@ -9,6 +9,8 @@ import Projects from './pages/Projects';
 import EventsPage from './pages/Events';
 import Contact from './pages/Contact';
 import Onboarding from './pages/Onboarding';
+import LeadOnboarding from './pages/LeadOnboarding';
+import StudioPage from './pages/StudioPage';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/join" element={<Onboarding />} />
+          <Route path="/lead-onboarding" element={<LeadOnboarding />} />
+          <Route path="/studio/*" element={<StudioPage />} />
         </Routes>
         <Footer />
       </div>
