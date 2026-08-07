@@ -19,6 +19,8 @@ const ALL_ROLES = [
 
 const MEMBER_DOMAINS = [
   'Web Development',
+  'App Development',
+  'QA & Testing',
   'AI/ML',
   'Creatives',
   'Sponsorship',

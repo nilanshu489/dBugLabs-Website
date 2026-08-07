@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Code2, Users, Lightbulb, Rocket, Target, Zap, ChevronRight, Calendar, Award, BookOpen, Mail, ArrowRight } from 'lucide-react';
+import { Code2, Users, Lightbulb, Rocket, Target, Zap, ChevronRight, Calendar, Award, BookOpen, Mail, ArrowRight, Smartphone, CheckCircle2 } from 'lucide-react';
 
 const About = () => {
   const [activeDomain, setActiveDomain] = useState('technical');
@@ -12,6 +12,8 @@ const About = () => {
       description: 'Building innovative solutions through code',
       subdomains: [
         { name: 'Web Development', icon: Code2, description: 'Full-stack web applications and modern frameworks' },
+        { name: 'App Development', icon: Smartphone, description: 'Native and cross-platform mobile applications' },
+        { name: 'QA & Testing', icon: CheckCircle2, description: 'Software quality assurance, testing, and reliability' },
         { name: 'AI/ML', icon: Zap, description: 'Machine learning models and AI-driven solutions' },
       ],
     },

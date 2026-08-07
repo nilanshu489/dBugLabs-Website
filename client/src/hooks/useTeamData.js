@@ -3,12 +3,12 @@ import { client, urlFor } from '../sanityClient';
 
 // Allowed names for regular member onboarding (/join)
 export const ALLOWED_NAMES = [
-  'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh', 
-  'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan', 
+  'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh',
+  'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan',
   'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Aanvi Gandhi',
-  'Dharshini', 'Shashank Singh', 'Piyush Kumar', 
-  'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL', 
-  'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna', 
+  'Dharshini', 'Shashank Singh', 'Piyush Kumar',
+  'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL',
+  'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna',
   'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R'
 ];
 

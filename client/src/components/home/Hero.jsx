@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Users, Code2, Layers, Wrench, Trophy, Network, BookOpen, Lightbulb } from 'lucide-react';
+import { ArrowRight, Calendar, Users, Code2, Layers, Wrench, Trophy, Network, BookOpen, Lightbulb, Smartphone, CheckCircle2 } from 'lucide-react';
 
 const Hero = () => {
   const canvasRef = useRef(null);
@@ -14,6 +14,8 @@ const Hero = () => {
       description: 'Building innovative solutions through code',
       subdomains: [
         { name: 'Web Development', icon: Code2, description: 'Full-stack web applications and modern frameworks' },
+        { name: 'App Development', icon: Smartphone, description: 'Native and cross-platform mobile applications' },
+        { name: 'QA & Testing', icon: CheckCircle2, description: 'Software quality assurance, testing, and reliability' },
         { name: 'AI/ML', icon: Layers, description: 'Machine learning models and AI-driven solutions' },
       ],
     },

@@ -23,6 +23,8 @@ export const teamMemberType = {
         list: [
           { title: 'Board', value: 'Board' },
           { title: 'Web Development', value: 'Web Development' },
+          { title: 'App Development', value: 'App Development' },
+          { title: 'QA & Testing', value: 'QA & Testing' },
           { title: 'AI/ML', value: 'AI/ML' },
           { title: 'Events', value: 'Events' },
           { title: 'Sponsorship', value: 'Sponsorship' },
