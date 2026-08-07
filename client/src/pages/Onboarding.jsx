@@ -40,7 +40,7 @@ const Onboarding = () => {
   });
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  
+
   const [status, setStatus] = useState('idle'); // idle, uploading, success, error
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -69,7 +69,7 @@ const Onboarding = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-    
+
     // 1. Verify Secret Club Passcode
     const validPasscode = (import.meta.env.VITE_CLUB_PASSCODE || 'DBUGLABS').trim();
     if (formData.passcode.trim() !== validPasscode) {
@@ -199,7 +199,7 @@ const Onboarding = () => {
       });
       setFile(null);
       setFilePreview(null);
-      
+
     } catch (error) {
       console.error('Submission error:', error);
       setErrorMessage('Failed to connect to Sanity CMS. Please verify your internet connection or passcode.');
@@ -218,7 +218,7 @@ const Onboarding = () => {
           <p className="text-gray-400">
             Your profile has been saved directly to Sanity CMS and is now live on the website roster!
           </p>
-          <button 
+          <button
             onClick={() => setStatus('idle')}
             className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-pink-500/25"
           >
@@ -249,7 +249,7 @@ const Onboarding = () => {
             <label className="flex items-center gap-2 text-sm font-medium text-purple-300 mb-2">
               <Shield className="w-4 h-4" /> Secret Club Passcode
             </label>
-            <input 
+            <input
               required
               type="password"
               name="passcode"
@@ -264,17 +264,17 @@ const Onboarding = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Full Name</label>
-              <input 
-                required 
-                type="text" 
-                name="name" 
-                value={formData.name} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors" 
-                placeholder="e.g. John Doe" 
+              <input
+                required
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
+                placeholder="e.g. John Doe"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-pink-400" /> Position / Role
@@ -307,10 +307,10 @@ const Onboarding = () => {
           {/* Domain Selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">Domain / Department</label>
-            <select 
-              name="domain" 
-              value={formData.domain} 
-              onChange={handleInputChange} 
+            <select
+              name="domain"
+              value={formData.domain}
+              onChange={handleInputChange}
               className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
             >
               <option value="Board">Board</option>
@@ -324,11 +324,11 @@ const Onboarding = () => {
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300">Profile Picture (Optional if updating)</label>
             <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-pink-500 transition-colors cursor-pointer relative group">
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange} 
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
               {filePreview ? (
                 <div className="flex flex-col items-center">
@@ -348,41 +348,41 @@ const Onboarding = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-800">
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <Instagram className="w-4 h-4 text-pink-500"/> Instagram
+                <Instagram className="w-4 h-4 text-pink-500" /> Instagram
               </label>
-              <input 
-                type="url" 
-                name="instagram" 
-                value={formData.instagram} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500" 
-                placeholder="https://..." 
+              <input
+                type="url"
+                name="instagram"
+                value={formData.instagram}
+                onChange={handleInputChange}
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500"
+                placeholder="https://..."
               />
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <Linkedin className="w-4 h-4 text-blue-500"/> LinkedIn
+                <Linkedin className="w-4 h-4 text-blue-500" /> LinkedIn
               </label>
-              <input 
-                type="url" 
-                name="linkedin" 
-                value={formData.linkedin} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" 
-                placeholder="https://..." 
+              <input
+                type="url"
+                name="linkedin"
+                value={formData.linkedin}
+                onChange={handleInputChange}
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                placeholder="https://..."
               />
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <Github className="w-4 h-4 text-gray-400"/> GitHub
+                <Github className="w-4 h-4 text-gray-400" /> GitHub
               </label>
-              <input 
-                type="url" 
-                name="github" 
-                value={formData.github} 
-                onChange={handleInputChange} 
-                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gray-500" 
-                placeholder="https://..." 
+              <input
+                type="url"
+                name="github"
+                value={formData.github}
+                onChange={handleInputChange}
+                className="w-full bg-black/50 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gray-500"
+                placeholder="https://..."
               />
             </div>
           </div>
@@ -393,9 +393,9 @@ const Onboarding = () => {
             </div>
           )}
 
-          <button 
+          <button
             disabled={status === 'uploading'}
-            type="submit" 
+            type="submit"
             className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-pink-500/25"
           >
             {status === 'uploading' ? (
