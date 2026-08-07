@@ -13,7 +13,7 @@ const Projects = () => {
       techStack: ['TypeScript'],
       team: ['dBug Labs'],
       status: 'Completed',
-      githubUrl: 'https://github.com/dbuglabs/espionage-event',
+      githubUrl: 'https://github.com/dbug-labs/espionage-event',
       completionDate: 'Apr 2026'
     },
     {
@@ -136,11 +136,10 @@ const Projects = () => {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-all ${
-                activeTab === tab.key
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-500/30'
-                  : 'bg-purple-500/10 text-gray-400 border border-purple-500/20 hover:border-purple-500/50'
-              }`}
+              className={`flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-all ${activeTab === tab.key
+                ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-purple-500/10 text-gray-400 border border-purple-500/20 hover:border-purple-500/50'
+                }`}
             >
               <tab.icon className="w-5 h-5" />
               {tab.label}
