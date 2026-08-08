@@ -124,8 +124,8 @@ const Onboarding = () => {
               { role: selectedRole, name: inputName }
             )
           : await writeClient.fetch(
-              '*[_type == "boardAndLead" && (lower(name) == lower($name) || (role == $role && domain == $domain))][0]',
-              { role: selectedRole, domain: activeDomain, name: inputName }
+              '*[_type == "boardAndLead" && lower(name) == lower($name)][0]',
+              { name: inputName }
             );
 
         if (!existingLead && !imageRef) {

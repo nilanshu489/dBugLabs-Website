@@ -101,10 +101,10 @@ const Team = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Leads</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={[webDevLead]} />
-                  <TeamGrid members={[appDevLead]} />
-                  <TeamGrid members={[qaLead]} />
-                  <TeamGrid members={[aimlLead]} />
+                  <TeamGrid members={Array.isArray(webDevLead) ? webDevLead : [webDevLead]} />
+                  <TeamGrid members={Array.isArray(appDevLead) ? appDevLead : [appDevLead]} />
+                  <TeamGrid members={Array.isArray(qaLead) ? qaLead : [qaLead]} />
+                  <TeamGrid members={Array.isArray(aimlLead) ? aimlLead : [aimlLead]} />
                 </div>
               </div>
 
@@ -112,10 +112,10 @@ const Team = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={[webDevAssociate]} />
-                  <TeamGrid members={[appDevAssociate]} />
-                  <TeamGrid members={[qaAssociate]} />
-                  <TeamGrid members={[aimlAssociate]} />
+                  <TeamGrid members={Array.isArray(webDevAssociate) ? webDevAssociate : [webDevAssociate]} />
+                  <TeamGrid members={Array.isArray(appDevAssociate) ? appDevAssociate : [appDevAssociate]} />
+                  <TeamGrid members={Array.isArray(qaAssociate) ? qaAssociate : [qaAssociate]} />
+                  <TeamGrid members={Array.isArray(aimlAssociate) ? aimlAssociate : [aimlAssociate]} />
                 </div>
               </div>
 
@@ -155,10 +155,10 @@ const Team = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Leads</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={[eventsLead]} />
-                  <TeamGrid members={[sponsorshipLead]} />
-                  <TeamGrid members={[prLead]} />
-                  <TeamGrid members={[creativesLead]} />
+                  <TeamGrid members={Array.isArray(eventsLead) ? eventsLead : [eventsLead]} />
+                  <TeamGrid members={Array.isArray(sponsorshipLead) ? sponsorshipLead : [sponsorshipLead]} />
+                  <TeamGrid members={Array.isArray(prLead) ? prLead : [prLead]} />
+                  <TeamGrid members={Array.isArray(creativesLead) ? creativesLead : [creativesLead]} />
                 </div>
               </div>
 
@@ -166,10 +166,10 @@ const Team = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={[eventsAssociate]} />
-                  <TeamGrid members={[sponsorshipAssociate]} />
-                  <TeamGrid members={[prAssociate]} />
-                  <TeamGrid members={[creativesAssociate]} />
+                  <TeamGrid members={Array.isArray(eventsAssociate) ? eventsAssociate : [eventsAssociate]} />
+                  <TeamGrid members={Array.isArray(sponsorshipAssociate) ? sponsorshipAssociate : [sponsorshipAssociate]} />
+                  <TeamGrid members={Array.isArray(prAssociate) ? prAssociate : [prAssociate]} />
+                  <TeamGrid members={Array.isArray(creativesAssociate) ? creativesAssociate : [creativesAssociate]} />
                 </div>
               </div>
 

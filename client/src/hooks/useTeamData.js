@@ -208,75 +208,43 @@ export const useTeamData = () => {
           return false;
         };
 
-        const findLead = (domainName, legacyRoleName) => {
-          return allFetched.find(m => {
+        const findAllLeads = (domainName, legacyRoleName, defaultPlaceholder) => {
+          const matches = allFetched.filter(m => {
             if (!isDomainMatch(m.domain, domainName)) return false;
             const r = m.role?.toLowerCase() || '';
-            if (m.role === 'Lead' || m.role === legacyRoleName || (r.endsWith('lead') && m.role !== 'Technical Lead' && m.role !== 'Corporate Lead')) {
-              return true;
-            }
-            return false;
+            return m.role === 'Lead' || m.role === legacyRoleName || (r.endsWith('lead') && m.role !== 'Technical Lead' && m.role !== 'Corporate Lead');
           });
+          return matches.length > 0 ? matches : [defaultPlaceholder];
         };
 
-        const findAssociate = (domainName, legacyRoleName) => {
-          return allFetched.find(m => {
+        const findAllAssociates = (domainName, legacyRoleName, defaultPlaceholder) => {
+          const matches = allFetched.filter(m => {
             if (!isDomainMatch(m.domain, domainName)) return false;
             const r = m.role?.toLowerCase() || '';
-            if (m.role === 'Associate' || m.role === legacyRoleName || r.endsWith('associate')) {
-              return true;
-            }
-            return false;
+            return m.role === 'Associate' || m.role === legacyRoleName || r.endsWith('associate');
           });
+          return matches.length > 0 ? matches : [defaultPlaceholder];
         };
 
-        const wdl = findLead('Web Development', 'Web Dev Lead');
-        if (wdl) setWebDevLead(wdl);
+        setWebDevLead(findAllLeads('Web Development', 'Web Dev Lead', { name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {} }));
+        setAppDevLead(findAllLeads('App Development', 'App Dev Lead', { name: 'To Be Announced', role: 'App Dev Lead', domain: 'App Development', bio: '', image: '', socials: {} }));
+        setQaLead(findAllLeads('QA & Testing', 'QA & Testing Lead', { name: 'To Be Announced', role: 'QA & Testing Lead', domain: 'QA & Testing', bio: '', image: '', socials: {} }));
+        setAimlLead(findAllLeads('AI/ML', 'AI/ML Lead', { name: 'To Be Announced', role: 'AI/ML Lead', domain: 'AI/ML', bio: '', image: '', socials: {} }));
 
-        const adl = findLead('App Development', 'App Dev Lead');
-        if (adl) setAppDevLead(adl);
+        setWebDevAssociate(findAllAssociates('Web Development', 'Web Dev Associate', { name: 'To Be Announced', role: 'Web Dev Associate', domain: 'Web Development', bio: '', image: '', socials: {} }));
+        setAppDevAssociate(findAllAssociates('App Development', 'App Dev Associate', { name: 'To Be Announced', role: 'App Dev Associate', domain: 'App Development', bio: '', image: '', socials: {} }));
+        setQaAssociate(findAllAssociates('QA & Testing', 'QA & Testing Associate', { name: 'To Be Announced', role: 'QA & Testing Associate', domain: 'QA & Testing', bio: '', image: '', socials: {} }));
+        setAimlAssociate(findAllAssociates('AI/ML', 'AI/ML Associate', { name: 'To Be Announced', role: 'AI/ML Associate', domain: 'AI/ML', bio: '', image: '', socials: {} }));
 
-        const qal = findLead('QA & Testing', 'QA & Testing Lead');
-        if (qal) setQaLead(qal);
+        setEventsLead(findAllLeads('Events', 'Events Lead', { name: 'To Be Announced', role: 'Events Lead', domain: 'Events', bio: '', image: '', socials: {} }));
+        setSponsorshipLead(findAllLeads('Sponsorship', 'Sponsorship Lead', { name: 'To Be Announced', role: 'Sponsorship Lead', domain: 'Sponsorship', bio: '', image: '', socials: {} }));
+        setPrLead(findAllLeads('Public Relations', 'PR Lead', { name: 'To Be Announced', role: 'PR Lead', domain: 'Public Relations', bio: '', image: '', socials: {} }));
+        setCreativesLead(findAllLeads('Creatives', 'Creatives Lead', { name: 'To Be Announced', role: 'Creatives Lead', domain: 'Creatives', bio: '', image: '', socials: {} }));
 
-        const aml = findLead('AI/ML', 'AI/ML Lead');
-        if (aml) setAimlLead(aml);
-
-        const wda = findAssociate('Web Development', 'Web Dev Associate');
-        if (wda) setWebDevAssociate(wda);
-
-        const ada = findAssociate('App Development', 'App Dev Associate');
-        if (ada) setAppDevAssociate(ada);
-
-        const qaa = findAssociate('QA & Testing', 'QA & Testing Associate');
-        if (qaa) setQaAssociate(qaa);
-
-        const ama = findAssociate('AI/ML', 'AI/ML Associate');
-        if (ama) setAimlAssociate(ama);
-
-        const evl = findLead('Events', 'Events Lead');
-        if (evl) setEventsLead(evl);
-
-        const spl = findLead('Sponsorship', 'Sponsorship Lead');
-        if (spl) setSponsorshipLead(spl);
-
-        const prl = findLead('Public Relations', 'PR Lead');
-        if (prl) setPrLead(prl);
-
-        const crl = findLead('Creatives', 'Creatives Lead');
-        if (crl) setCreativesLead(crl);
-
-        const eva = findAssociate('Events', 'Events Associate');
-        if (eva) setEventsAssociate(eva);
-
-        const spa = findAssociate('Sponsorship', 'Sponsorship Associate');
-        if (spa) setSponsorshipAssociate(spa);
-
-        const pra = findAssociate('Public Relations', 'PR Associate');
-        if (pra) setPrAssociate(pra);
-
-        const cra = findAssociate('Creatives', 'Creatives Associate');
-        if (cra) setCreativesAssociate(cra);
+        setEventsAssociate(findAllAssociates('Events', 'Events Associate', { name: 'To Be Announced', role: 'Events Associate', domain: 'Events', bio: '', image: '', socials: {} }));
+        setSponsorshipAssociate(findAllAssociates('Sponsorship', 'Sponsorship Associate', { name: 'To Be Announced', role: 'Sponsorship Associate', domain: 'Sponsorship', bio: '', image: '', socials: {} }));
+        setPrAssociate(findAllAssociates('Public Relations', 'PR Associate', { name: 'To Be Announced', role: 'PR Associate', domain: 'Public Relations', bio: '', image: '', socials: {} }));
+        setCreativesAssociate(findAllAssociates('Creatives', 'Creatives Associate', { name: 'To Be Announced', role: 'Creatives Associate', domain: 'Creatives', bio: '', image: '', socials: {} }));
 
         setIsLoading(false);
       } catch (err) {
