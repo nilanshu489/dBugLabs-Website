@@ -88,16 +88,23 @@ const Onboarding = () => {
       // Upload image to Sanity asset pipeline if a file was selected
       let imageRef = null;
       if (file) {
-        const imageAsset = await writeClient.assets.upload('image', file, {
-          filename: file.name
-        });
-        imageRef = {
-          _type: 'image',
-          asset: {
-            _type: 'reference',
-            _ref: imageAsset._id
-          }
-        };
+        try {
+          const imageAsset = await writeClient.assets.upload('image', file, {
+            filename: file.name
+          });
+          imageRef = {
+            _type: 'image',
+            asset: {
+              _type: 'reference',
+              _ref: imageAsset._id
+            }
+          };
+        } catch (uploadErr) {
+          console.error('Sanity image upload error:', uploadErr);
+          setErrorMessage('Photo upload failed. Please ensure https://dbug-labs.vercel.app is added to CORS Origins in Sanity Dashboard (https://sanity.io/manage -> Project ueahhip3 -> API -> CORS Origins with "Allow Credentials" checked).');
+          setStatus('idle');
+          return;
+        }
       }
 
       const socials = {
