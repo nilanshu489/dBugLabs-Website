@@ -5,13 +5,32 @@ const MemberCard = ({ member }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { name, role, domain, image, bio, socials } = member;
 
+  const getDisplayRole = (role, domain) => {
+    if (!role) return '';
+    if (role === 'Lead') {
+      const shortDomain = domain === 'Public Relations' ? 'PR' : (domain === 'Web Development' ? 'Web Dev' : (domain === 'App Development' ? 'App Dev' : domain));
+      return `${shortDomain} Lead`;
+    }
+    if (role === 'Associate') {
+      const shortDomain = domain === 'Public Relations' ? 'PR' : (domain === 'Web Development' ? 'Web Dev' : (domain === 'App Development' ? 'App Dev' : domain));
+      return `${shortDomain} Associate`;
+    }
+    return role;
+  };
+
   const getDomainColor = (domain) => {
     const colors = {
       'Web Development': 'from-blue-500 to-cyan-500',
+      'Web Dev': 'from-blue-500 to-cyan-500',
+      'App Development': 'from-cyan-500 to-blue-600',
+      'App Dev': 'from-cyan-500 to-blue-600',
+      'QA & Testing': 'from-teal-500 to-emerald-500',
+      'QA and Testing': 'from-teal-500 to-emerald-500',
       'AI/ML': 'from-purple-500 to-pink-500',
       'Events': 'from-orange-500 to-red-500',
       'Sponsorship': 'from-green-500 to-emerald-500',
       'Public Relations': 'from-yellow-500 to-orange-500',
+      'PR': 'from-yellow-500 to-orange-500',
       'Creatives': 'from-pink-500 to-rose-500',
       'Leadership': 'from-purple-600 to-pink-600',
       'Board': 'from-purple-600 to-pink-600',
@@ -22,10 +41,16 @@ const MemberCard = ({ member }) => {
   const getDomainBorder = (domain) => {
     const colors = {
       'Web Development': 'border-blue-500/30 hover:border-blue-500/60',
+      'Web Dev': 'border-blue-500/30 hover:border-blue-500/60',
+      'App Development': 'border-cyan-500/30 hover:border-cyan-500/60',
+      'App Dev': 'border-cyan-500/30 hover:border-cyan-500/60',
+      'QA & Testing': 'border-teal-500/30 hover:border-teal-500/60',
+      'QA and Testing': 'border-teal-500/30 hover:border-teal-500/60',
       'AI/ML': 'border-purple-500/30 hover:border-purple-500/60',
       'Events': 'border-orange-500/30 hover:border-orange-500/60',
       'Sponsorship': 'border-green-500/30 hover:border-green-500/60',
       'Public Relations': 'border-yellow-500/30 hover:border-yellow-500/60',
+      'PR': 'border-yellow-500/30 hover:border-yellow-500/60',
       'Creatives': 'border-pink-500/30 hover:border-pink-500/60',
       'Leadership': 'border-purple-500/30 hover:border-purple-500/60',
       'Board': 'border-purple-500/30 hover:border-purple-500/60',
@@ -36,10 +61,16 @@ const MemberCard = ({ member }) => {
   const getDomainGlow = (domain) => {
     const colors = {
       'Web Development': 'hover:shadow-blue-500/20',
+      'Web Dev': 'hover:shadow-blue-500/20',
+      'App Development': 'hover:shadow-cyan-500/20',
+      'App Dev': 'hover:shadow-cyan-500/20',
+      'QA & Testing': 'hover:shadow-teal-500/20',
+      'QA and Testing': 'hover:shadow-teal-500/20',
       'AI/ML': 'hover:shadow-purple-500/20',
       'Events': 'hover:shadow-orange-500/20',
       'Sponsorship': 'hover:shadow-green-500/20',
       'Public Relations': 'hover:shadow-yellow-500/20',
+      'PR': 'hover:shadow-yellow-500/20',
       'Creatives': 'hover:shadow-pink-500/20',
       'Leadership': 'hover:shadow-purple-500/20',
       'Board': 'hover:shadow-purple-500/20',
@@ -91,7 +122,7 @@ const MemberCard = ({ member }) => {
         
         {/* Role */}
         <p className={`text-sm font-medium mt-1.5 bg-gradient-to-r ${getDomainColor(domain)} bg-clip-text text-transparent`}>
-          {role}
+          {getDisplayRole(role, domain)}
         </p>
 
         {/* Social Links - compact */}

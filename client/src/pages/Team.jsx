@@ -26,8 +26,12 @@ const Team = () => {
   const {
     boardMembers,
     webDevLead,
+    appDevLead,
+    qaLead,
     aimlLead,
     webDevAssociate,
+    appDevAssociate,
+    qaAssociate,
     aimlAssociate,
     technicalMembers,
     eventsLead,
@@ -98,6 +102,8 @@ const Team = () => {
                 <h3 className="text-2xl font-bold text-white mb-6">Leads</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   <TeamGrid members={[webDevLead]} />
+                  <TeamGrid members={[appDevLead]} />
+                  <TeamGrid members={[qaLead]} />
                   <TeamGrid members={[aimlLead]} />
                 </div>
               </div>
@@ -107,6 +113,8 @@ const Team = () => {
                 <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   <TeamGrid members={[webDevAssociate]} />
+                  <TeamGrid members={[appDevAssociate]} />
+                  <TeamGrid members={[qaAssociate]} />
                   <TeamGrid members={[aimlAssociate]} />
                 </div>
               </div>

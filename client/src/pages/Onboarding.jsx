@@ -3,38 +3,20 @@ import { Shield, Upload, CheckCircle2, Loader2, UserCheck, Instagram, Github, Li
 import { writeClient } from '../sanityClient';
 import { ALLOWED_NAMES } from '../hooks/useTeamData';
 
-const ALL_ROLES = [
-  { role: 'Member', isLead: false, domain: 'Web Development' },
-  { role: 'Secretary', isLead: true, domain: 'Board' },
-  { role: 'Joint Secretary', isLead: true, domain: 'Board' },
-  { role: 'Technical Lead', isLead: true, domain: 'Board' },
-  { role: 'Corporate Lead', isLead: true, domain: 'Board' },
-  { role: 'Web Dev Lead', isLead: true, domain: 'Web Development' },
-  { role: 'AI/ML Lead', isLead: true, domain: 'AI/ML' },
-  { role: 'Events Lead', isLead: true, domain: 'Events' },
-  { role: 'Sponsorship Lead', isLead: true, domain: 'Sponsorship' },
-  { role: 'PR Lead', isLead: true, domain: 'Public Relations' },
-  { role: 'Creatives Lead', isLead: true, domain: 'Creatives' },
-  { role: 'Web Dev Associate', isLead: true, domain: 'Web Development' },
-  { role: 'AI/ML Associate', isLead: true, domain: 'AI/ML' },
-  { role: 'Events Associate', isLead: true, domain: 'Events' },
-  { role: 'Sponsorship Associate', isLead: true, domain: 'Sponsorship' },
-  { role: 'PR Associate', isLead: true, domain: 'Public Relations' },
-  { role: 'Creatives Associate', isLead: true, domain: 'Creatives' },
-  { role: 'Technical Associate', isLead: true, domain: 'Technical' },
-  { role: 'Corporate Associate', isLead: true, domain: 'Board' },
+const BOARD_ROLES = ['Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead'];
+
+const TECHNICAL_DOMAINS = [
+  { value: 'Web Development', label: 'Web Dev' },
+  { value: 'App Development', label: 'App Dev' },
+  { value: 'QA & Testing', label: 'QA and Testing' },
+  { value: 'AI/ML', label: 'AI/ML' },
 ];
 
-const MEMBER_DOMAINS = [
-  'Web Development',
-  'App Development',
-  'QA & Testing',
-  'AI/ML',
-  'Creatives',
-  'Sponsorship',
-  'Events',
-  'Public Relations',
-  'Technical'
+const CORPORATE_DOMAINS = [
+  { value: 'Events', label: 'Events' },
+  { value: 'Sponsorship', label: 'Sponsorship' },
+  { value: 'Public Relations', label: 'PR' },
+  { value: 'Creatives', label: 'Creatives' },
 ];
 
 const Onboarding = () => {
@@ -57,11 +39,11 @@ const Onboarding = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'role') {
-      const match = ALL_ROLES.find(r => r.role === value);
+      const isBoard = BOARD_ROLES.includes(value);
       setFormData(prev => ({
         ...prev,
         role: value,
-        domain: match?.isLead ? match.domain : prev.domain
+        domain: isBoard ? 'Board' : (prev.domain === 'Board' ? 'Web Development' : prev.domain)
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -98,8 +80,7 @@ const Onboarding = () => {
     }
 
     const selectedRole = formData.role;
-    const matchedRoleObj = ALL_ROLES.find(r => r.role === selectedRole);
-    const isLeadRole = matchedRoleObj ? matchedRoleObj.isLead : false;
+    const isBoardOrLeadRole = BOARD_ROLES.includes(selectedRole) || selectedRole === 'Lead' || selectedRole === 'Associate';
 
     try {
       setStatus('uploading');
@@ -126,9 +107,9 @@ const Onboarding = () => {
         twitter: formData.twitter ? formData.twitter.trim() : ''
       };
 
-      if (isLeadRole) {
+      if (isBoardOrLeadRole) {
         // --- LEAD / BOARD DOCUMENT TYPE ---
-        const activeDomain = matchedRoleObj ? matchedRoleObj.domain : formData.domain;
+        const activeDomain = BOARD_ROLES.includes(selectedRole) ? 'Board' : formData.domain;
 
         const existingLead = await writeClient.fetch(
           '*[_type == "boardAndLead" && (role == $role || name == $name)][0]',
@@ -243,6 +224,8 @@ const Onboarding = () => {
     );
   }
 
+  const isBoardRole = BOARD_ROLES.includes(formData.role);
+
   return (
     <main className="bg-black min-h-screen pt-32 pb-16">
       <div className="container mx-auto px-4 max-w-2xl">
@@ -299,31 +282,13 @@ const Onboarding = () => {
                 onChange={handleInputChange}
                 className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
               >
-                <optgroup label="General Member">
-                  <option value="Member">Member</option>
-                </optgroup>
-                <optgroup label="Associate Positions">
-                  <option value="Web Dev Associate">Web Dev Associate</option>
-                  <option value="AI/ML Associate">AI/ML Associate</option>
-                  <option value="Events Associate">Events Associate</option>
-                  <option value="Sponsorship Associate">Sponsorship Associate</option>
-                  <option value="PR Associate">PR Associate</option>
-                  <option value="Creatives Associate">Creatives Associate</option>
-                  <option value="Technical Associate">Technical Associate</option>
-                  <option value="Corporate Associate">Corporate Associate</option>
-                </optgroup>
-                <optgroup label="Board & Lead Positions">
-                  <option value="Secretary">Secretary</option>
-                  <option value="Joint Secretary">Joint Secretary</option>
-                  <option value="Technical Lead">Technical Lead</option>
-                  <option value="Corporate Lead">Corporate Lead</option>
-                  <option value="Web Dev Lead">Web Dev Lead</option>
-                  <option value="AI/ML Lead">AI/ML Lead</option>
-                  <option value="Events Lead">Events Lead</option>
-                  <option value="Sponsorship Lead">Sponsorship Lead</option>
-                  <option value="PR Lead">PR Lead</option>
-                  <option value="Creatives Lead">Creatives Lead</option>
-                </optgroup>
+                <option value="Secretary">Secretary</option>
+                <option value="Joint Secretary">Joint Secretary</option>
+                <option value="Technical Lead">Technical Lead</option>
+                <option value="Corporate Lead">Corporate Lead</option>
+                <option value="Lead">Lead</option>
+                <option value="Associate">Associate</option>
+                <option value="Member">Member</option>
               </select>
             </div>
           </div>
@@ -335,12 +300,27 @@ const Onboarding = () => {
               name="domain"
               value={formData.domain}
               onChange={handleInputChange}
-              className="w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors cursor-pointer"
+              disabled={isBoardRole}
+              className={`w-full bg-black/50 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors ${
+                isBoardRole ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+              }`}
             >
-              <option value="Board">Board</option>
-              {MEMBER_DOMAINS.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
+              {isBoardRole ? (
+                <option value="Board">Board</option>
+              ) : (
+                <>
+                  <optgroup label="Technical">
+                    {TECHNICAL_DOMAINS.map(d => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Corporate">
+                    {CORPORATE_DOMAINS.map(d => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
+                    ))}
+                  </optgroup>
+                </>
+              )}
             </select>
           </div>
 

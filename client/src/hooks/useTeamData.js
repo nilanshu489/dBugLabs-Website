@@ -23,13 +23,13 @@ export const ALLOWED_LEAD_NAMES = [
 ];
 
 const EXCLUDED_TECH_ROLES = [
-  'Web Dev Lead', 'AI/ML Lead', 'Technical Lead',
-  'Web Dev Associate', 'AI/ML Associate', 'Technical Associate'
+  'Web Dev Lead', 'App Dev Lead', 'QA Lead', 'QA & Testing Lead', 'AI/ML Lead', 'Technical Lead', 'Lead',
+  'Web Dev Associate', 'App Dev Associate', 'QA Associate', 'QA & Testing Associate', 'AI/ML Associate', 'Technical Associate', 'Associate'
 ];
 
 const EXCLUDED_CORP_ROLES = [
-  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead', 'Corporate Lead',
-  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Creatives Associate', 'Corporate Associate'
+  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead', 'Corporate Lead', 'Lead',
+  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Creatives Associate', 'Corporate Associate', 'Associate'
 ];
 
 export const useTeamData = () => {
@@ -41,9 +41,17 @@ export const useTeamData = () => {
     { name: 'To Be Announced', role: 'Corporate Lead', domain: 'Board', bio: '', image: '', socials: {} }
   ]);
 
-  // Lead & Associate positions — placeholder defaults, overridden by Sanity data
+  // Technical Lead & Associate positions
   const [webDevLead, setWebDevLead] = useState({
     name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {}
+  });
+
+  const [appDevLead, setAppDevLead] = useState({
+    name: 'To Be Announced', role: 'App Dev Lead', domain: 'App Development', bio: '', image: '', socials: {}
+  });
+
+  const [qaLead, setQaLead] = useState({
+    name: 'To Be Announced', role: 'QA & Testing Lead', domain: 'QA & Testing', bio: '', image: '', socials: {}
   });
 
   const [aimlLead, setAimlLead] = useState({
@@ -52,6 +60,14 @@ export const useTeamData = () => {
 
   const [webDevAssociate, setWebDevAssociate] = useState({
     name: 'To Be Announced', role: 'Web Dev Associate', domain: 'Web Development', bio: '', image: '', socials: {}
+  });
+
+  const [appDevAssociate, setAppDevAssociate] = useState({
+    name: 'To Be Announced', role: 'App Dev Associate', domain: 'App Development', bio: '', image: '', socials: {}
+  });
+
+  const [qaAssociate, setQaAssociate] = useState({
+    name: 'To Be Announced', role: 'QA & Testing Associate', domain: 'QA & Testing', bio: '', image: '', socials: {}
   });
 
   const [aimlAssociate, setAimlAssociate] = useState({
@@ -73,6 +89,7 @@ export const useTeamData = () => {
     { name: 'Aanvi Gandhi', role: 'Member', domain: 'Technical', bio: '', image: '', socials: {} },
   ]);
 
+  // Corporate Lead & Associate positions
   const [eventsLead, setEventsLead] = useState({
     name: 'To Be Announced', role: 'Events Lead', domain: 'Events', bio: '', image: '', socials: {}
   });
@@ -146,8 +163,8 @@ export const useTeamData = () => {
             socials: member.socials || {}
           }));
 
-          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'AI/ML', 'Technical'], EXCLUDED_TECH_ROLES));
-          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations'], EXCLUDED_CORP_ROLES));
+          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'Web Dev', 'App Development', 'App Dev', 'QA & Testing', 'QA and Testing', 'AI/ML', 'Technical'], EXCLUDED_TECH_ROLES));
+          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations', 'PR'], EXCLUDED_CORP_ROLES));
         }
 
         // Fetch board & lead data
@@ -174,42 +191,91 @@ export const useTeamData = () => {
 
         // Combine fetched entries from both schemas to find leads and associates
         const allFetched = [...formattedMembers, ...formattedLeads];
-        const findRole = (role) => allFetched.find(m => m.role === role);
 
-        const wdl = findRole('Web Dev Lead');
+        const isDomainMatch = (d1, d2) => {
+          if (!d1 || !d2) return false;
+          const s1 = d1.toLowerCase().trim();
+          const s2 = d2.toLowerCase().trim();
+          if (s1 === s2) return true;
+          if (s1.includes('web') && s2.includes('web')) return true;
+          if (s1.includes('app') && s2.includes('app')) return true;
+          if ((s1.includes('qa') || s1.includes('testing')) && (s2.includes('qa') || s2.includes('testing'))) return true;
+          if (s1.includes('ai') && s2.includes('ai')) return true;
+          if (s1.includes('event') && s2.includes('event')) return true;
+          if (s1.includes('sponsor') && s2.includes('sponsor')) return true;
+          if ((s1.includes('pr') || s1.includes('public relation')) && (s2.includes('pr') || s2.includes('public relation'))) return true;
+          if (s1.includes('creative') && s2.includes('creative')) return true;
+          return false;
+        };
+
+        const findLead = (domainName, legacyRoleName) => {
+          return allFetched.find(m => {
+            if (!isDomainMatch(m.domain, domainName)) return false;
+            const r = m.role?.toLowerCase() || '';
+            if (m.role === 'Lead' || m.role === legacyRoleName || (r.endsWith('lead') && m.role !== 'Technical Lead' && m.role !== 'Corporate Lead')) {
+              return true;
+            }
+            return false;
+          });
+        };
+
+        const findAssociate = (domainName, legacyRoleName) => {
+          return allFetched.find(m => {
+            if (!isDomainMatch(m.domain, domainName)) return false;
+            const r = m.role?.toLowerCase() || '';
+            if (m.role === 'Associate' || m.role === legacyRoleName || r.endsWith('associate')) {
+              return true;
+            }
+            return false;
+          });
+        };
+
+        const wdl = findLead('Web Development', 'Web Dev Lead');
         if (wdl) setWebDevLead(wdl);
 
-        const aml = findRole('AI/ML Lead');
+        const adl = findLead('App Development', 'App Dev Lead');
+        if (adl) setAppDevLead(adl);
+
+        const qal = findLead('QA & Testing', 'QA & Testing Lead');
+        if (qal) setQaLead(qal);
+
+        const aml = findLead('AI/ML', 'AI/ML Lead');
         if (aml) setAimlLead(aml);
 
-        const wda = findRole('Web Dev Associate');
+        const wda = findAssociate('Web Development', 'Web Dev Associate');
         if (wda) setWebDevAssociate(wda);
 
-        const ama = findRole('AI/ML Associate');
+        const ada = findAssociate('App Development', 'App Dev Associate');
+        if (ada) setAppDevAssociate(ada);
+
+        const qaa = findAssociate('QA & Testing', 'QA & Testing Associate');
+        if (qaa) setQaAssociate(qaa);
+
+        const ama = findAssociate('AI/ML', 'AI/ML Associate');
         if (ama) setAimlAssociate(ama);
 
-        const evl = findRole('Events Lead');
+        const evl = findLead('Events', 'Events Lead');
         if (evl) setEventsLead(evl);
 
-        const spl = findRole('Sponsorship Lead');
+        const spl = findLead('Sponsorship', 'Sponsorship Lead');
         if (spl) setSponsorshipLead(spl);
 
-        const prl = findRole('PR Lead');
+        const prl = findLead('Public Relations', 'PR Lead');
         if (prl) setPrLead(prl);
 
-        const crl = findRole('Creatives Lead');
+        const crl = findLead('Creatives', 'Creatives Lead');
         if (crl) setCreativesLead(crl);
 
-        const eva = findRole('Events Associate');
+        const eva = findAssociate('Events', 'Events Associate');
         if (eva) setEventsAssociate(eva);
 
-        const spa = findRole('Sponsorship Associate');
+        const spa = findAssociate('Sponsorship', 'Sponsorship Associate');
         if (spa) setSponsorshipAssociate(spa);
 
-        const pra = findRole('PR Associate');
+        const pra = findAssociate('Public Relations', 'PR Associate');
         if (pra) setPrAssociate(pra);
 
-        const cra = findRole('Creatives Associate');
+        const cra = findAssociate('Creatives', 'Creatives Associate');
         if (cra) setCreativesAssociate(cra);
 
         setIsLoading(false);
@@ -237,8 +303,12 @@ export const useTeamData = () => {
   return {
     boardMembers,
     webDevLead,
+    appDevLead,
+    qaLead,
     aimlLead,
     webDevAssociate,
+    appDevAssociate,
+    qaAssociate,
     aimlAssociate,
     technicalMembers,
     eventsLead,
@@ -253,3 +323,4 @@ export const useTeamData = () => {
     isLoading
   };
 };
+
