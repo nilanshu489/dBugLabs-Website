@@ -23,7 +23,24 @@ const Team = () => {
     }));
   };
 
-  const { boardMembers, webDevLead, aimlLead, technicalMembers, eventsLead, sponsorshipLead, prLead, creativesLead, corporateMembers, isLoading } = useTeamData();
+  const {
+    boardMembers,
+    webDevLead,
+    aimlLead,
+    webDevAssociate,
+    aimlAssociate,
+    technicalMembers,
+    eventsLead,
+    sponsorshipLead,
+    prLead,
+    creativesLead,
+    eventsAssociate,
+    sponsorshipAssociate,
+    prAssociate,
+    creativesAssociate,
+    corporateMembers,
+    isLoading
+  } = useTeamData();
 
   return (
     <main className="bg-black min-h-screen pt-24 pb-16">
@@ -85,6 +102,15 @@ const Team = () => {
                 </div>
               </div>
 
+              {/* Associates Section */}
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <TeamGrid members={[webDevAssociate]} />
+                  <TeamGrid members={[aimlAssociate]} />
+                </div>
+              </div>
+
               {/* Members Section */}
               <div>
                 <h3 className="text-xl font-semibold text-blue-400 mb-6">Members</h3>
@@ -125,6 +151,17 @@ const Team = () => {
                   <TeamGrid members={[sponsorshipLead]} />
                   <TeamGrid members={[prLead]} />
                   <TeamGrid members={[creativesLead]} />
+                </div>
+              </div>
+
+              {/* Associates Section */}
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <TeamGrid members={[eventsAssociate]} />
+                  <TeamGrid members={[sponsorshipAssociate]} />
+                  <TeamGrid members={[prAssociate]} />
+                  <TeamGrid members={[creativesAssociate]} />
                 </div>
               </div>
 

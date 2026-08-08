@@ -12,11 +12,24 @@ export const ALLOWED_NAMES = [
   'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R'
 ];
 
-// Allowed names for board/lead onboarding (/lead-onboarding)
+// Allowed names for board/lead/associate onboarding (/lead-onboarding)
 export const ALLOWED_LEAD_NAMES = [
   'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead',
   'Web Dev Lead', 'AI/ML Lead', 'Events Lead', 'Sponsorship Lead',
-  'PR Lead', 'Creatives Lead'
+  'PR Lead', 'Creatives Lead',
+  'Web Dev Associate', 'AI/ML Associate', 'Events Associate',
+  'Sponsorship Associate', 'PR Associate', 'Creatives Associate',
+  'Technical Associate', 'Corporate Associate'
+];
+
+const EXCLUDED_TECH_ROLES = [
+  'Web Dev Lead', 'AI/ML Lead', 'Technical Lead',
+  'Web Dev Associate', 'AI/ML Associate', 'Technical Associate'
+];
+
+const EXCLUDED_CORP_ROLES = [
+  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead', 'Corporate Lead',
+  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Creatives Associate', 'Corporate Associate'
 ];
 
 export const useTeamData = () => {
@@ -28,13 +41,21 @@ export const useTeamData = () => {
     { name: 'To Be Announced', role: 'Corporate Lead', domain: 'Board', bio: '', image: '', socials: {} }
   ]);
 
-  // Lead positions — placeholder defaults, overridden by Sanity boardAndLead data
+  // Lead & Associate positions — placeholder defaults, overridden by Sanity data
   const [webDevLead, setWebDevLead] = useState({
     name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {}
   });
 
   const [aimlLead, setAimlLead] = useState({
     name: 'To Be Announced', role: 'AI/ML Lead', domain: 'AI/ML', bio: '', image: '', socials: {}
+  });
+
+  const [webDevAssociate, setWebDevAssociate] = useState({
+    name: 'To Be Announced', role: 'Web Dev Associate', domain: 'Web Development', bio: '', image: '', socials: {}
+  });
+
+  const [aimlAssociate, setAimlAssociate] = useState({
+    name: 'To Be Announced', role: 'AI/ML Associate', domain: 'AI/ML', bio: '', image: '', socials: {}
   });
 
   const [technicalMembers, setTechnicalMembers] = useState([
@@ -68,6 +89,22 @@ export const useTeamData = () => {
     name: 'To Be Announced', role: 'Creatives Lead', domain: 'Creatives', bio: '', image: '', socials: {}
   });
 
+  const [eventsAssociate, setEventsAssociate] = useState({
+    name: 'To Be Announced', role: 'Events Associate', domain: 'Events', bio: '', image: '', socials: {}
+  });
+
+  const [sponsorshipAssociate, setSponsorshipAssociate] = useState({
+    name: 'To Be Announced', role: 'Sponsorship Associate', domain: 'Sponsorship', bio: '', image: '', socials: {}
+  });
+
+  const [prAssociate, setPrAssociate] = useState({
+    name: 'To Be Announced', role: 'PR Associate', domain: 'Public Relations', bio: '', image: '', socials: {}
+  });
+
+  const [creativesAssociate, setCreativesAssociate] = useState({
+    name: 'To Be Announced', role: 'Creatives Associate', domain: 'Creatives', bio: '', image: '', socials: {}
+  });
+
   const [corporateMembers, setCorporateMembers] = useState([
     { name: 'Dharshini', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
     { name: 'Shashank Singh', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
@@ -89,14 +126,17 @@ export const useTeamData = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch Sanity Data — regular members
+  // Fetch Sanity Data — regular members & leads/associates
   useEffect(() => {
     const fetchAll = async () => {
       try {
+        let formattedMembers = [];
+        let formattedLeads = [];
+
         // Fetch regular team members
         const memberData = await client.fetch('*[_type == "teamMember"]');
         if (memberData && memberData.length > 0) {
-          const formattedMembers = memberData.map(member => ({
+          formattedMembers = memberData.map(member => ({
             name: member.name,
             role: member.role,
             domain: member.domain,
@@ -106,14 +146,14 @@ export const useTeamData = () => {
             socials: member.socials || {}
           }));
 
-          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'AI/ML', 'Technical'], ['Web Dev Lead', 'AI/ML Lead']));
-          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations'], ['Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead']));
+          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'AI/ML', 'Technical'], EXCLUDED_TECH_ROLES));
+          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations'], EXCLUDED_CORP_ROLES));
         }
 
-        // Fetch board & lead data from new schema
+        // Fetch board & lead data
         const leadData = await client.fetch('*[_type == "boardAndLead"]');
         if (leadData && leadData.length > 0) {
-          const formattedLeads = leadData.map(member => ({
+          formattedLeads = leadData.map(member => ({
             name: member.name,
             role: member.role,
             domain: member.domain,
@@ -130,28 +170,47 @@ export const useTeamData = () => {
               return match || placeholder;
             });
           });
-
-          // Update leads
-          const findLead = (role) => formattedLeads.find(m => m.role === role);
-
-          const wdl = findLead('Web Dev Lead');
-          if (wdl) setWebDevLead(wdl);
-
-          const aml = findLead('AI/ML Lead');
-          if (aml) setAimlLead(aml);
-
-          const evl = findLead('Events Lead');
-          if (evl) setEventsLead(evl);
-
-          const spl = findLead('Sponsorship Lead');
-          if (spl) setSponsorshipLead(spl);
-
-          const prl = findLead('PR Lead');
-          if (prl) setPrLead(prl);
-
-          const crl = findLead('Creatives Lead');
-          if (crl) setCreativesLead(crl);
         }
+
+        // Combine fetched entries from both schemas to find leads and associates
+        const allFetched = [...formattedMembers, ...formattedLeads];
+        const findRole = (role) => allFetched.find(m => m.role === role);
+
+        const wdl = findRole('Web Dev Lead');
+        if (wdl) setWebDevLead(wdl);
+
+        const aml = findRole('AI/ML Lead');
+        if (aml) setAimlLead(aml);
+
+        const wda = findRole('Web Dev Associate');
+        if (wda) setWebDevAssociate(wda);
+
+        const ama = findRole('AI/ML Associate');
+        if (ama) setAimlAssociate(ama);
+
+        const evl = findRole('Events Lead');
+        if (evl) setEventsLead(evl);
+
+        const spl = findRole('Sponsorship Lead');
+        if (spl) setSponsorshipLead(spl);
+
+        const prl = findRole('PR Lead');
+        if (prl) setPrLead(prl);
+
+        const crl = findRole('Creatives Lead');
+        if (crl) setCreativesLead(crl);
+
+        const eva = findRole('Events Associate');
+        if (eva) setEventsAssociate(eva);
+
+        const spa = findRole('Sponsorship Associate');
+        if (spa) setSponsorshipAssociate(spa);
+
+        const pra = findRole('PR Associate');
+        if (pra) setPrAssociate(pra);
+
+        const cra = findRole('Creatives Associate');
+        if (cra) setCreativesAssociate(cra);
 
         setIsLoading(false);
       } catch (err) {
@@ -168,13 +227,6 @@ export const useTeamData = () => {
     return str1?.toLowerCase().trim() === str2?.toLowerCase().trim();
   };
 
-  const mergeMembers = (defaults, fetched, domain) => {
-    const fetchedDomainMembers = fetched.filter(m => m.domain === domain);
-    // Find defaults that aren't fetched anywhere (by name, ignoring case)
-    const unmatchedDefaults = defaults.filter(d => !fetched.find(f => isMatch(f.name, d.name)));
-    return [...fetchedDomainMembers, ...unmatchedDefaults];
-  };
-
   const mergeMembersLists = (defaults, fetched, domains, excludedRoles) => {
     const fetchedDomainMembers = fetched.filter(m => domains.includes(m.domain) && !excludedRoles.includes(m.role));
     // Check against global fetched to avoid duplicating someone who changed domains
@@ -182,5 +234,22 @@ export const useTeamData = () => {
     return [...fetchedDomainMembers, ...unmatchedDefaults];
   };
 
-  return { boardMembers, webDevLead, aimlLead, technicalMembers, eventsLead, sponsorshipLead, prLead, creativesLead, corporateMembers, isLoading };
+  return {
+    boardMembers,
+    webDevLead,
+    aimlLead,
+    webDevAssociate,
+    aimlAssociate,
+    technicalMembers,
+    eventsLead,
+    sponsorshipLead,
+    prLead,
+    creativesLead,
+    eventsAssociate,
+    sponsorshipAssociate,
+    prAssociate,
+    creativesAssociate,
+    corporateMembers,
+    isLoading
+  };
 };

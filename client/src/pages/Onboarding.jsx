@@ -15,6 +15,14 @@ const ALL_ROLES = [
   { role: 'Sponsorship Lead', isLead: true, domain: 'Sponsorship' },
   { role: 'PR Lead', isLead: true, domain: 'Public Relations' },
   { role: 'Creatives Lead', isLead: true, domain: 'Creatives' },
+  { role: 'Web Dev Associate', isLead: true, domain: 'Web Development' },
+  { role: 'AI/ML Associate', isLead: true, domain: 'AI/ML' },
+  { role: 'Events Associate', isLead: true, domain: 'Events' },
+  { role: 'Sponsorship Associate', isLead: true, domain: 'Sponsorship' },
+  { role: 'PR Associate', isLead: true, domain: 'Public Relations' },
+  { role: 'Creatives Associate', isLead: true, domain: 'Creatives' },
+  { role: 'Technical Associate', isLead: true, domain: 'Technical' },
+  { role: 'Corporate Associate', isLead: true, domain: 'Board' },
 ];
 
 const MEMBER_DOMAINS = [
@@ -293,6 +301,16 @@ const Onboarding = () => {
               >
                 <optgroup label="General Member">
                   <option value="Member">Member</option>
+                </optgroup>
+                <optgroup label="Associate Positions">
+                  <option value="Web Dev Associate">Web Dev Associate</option>
+                  <option value="AI/ML Associate">AI/ML Associate</option>
+                  <option value="Events Associate">Events Associate</option>
+                  <option value="Sponsorship Associate">Sponsorship Associate</option>
+                  <option value="PR Associate">PR Associate</option>
+                  <option value="Creatives Associate">Creatives Associate</option>
+                  <option value="Technical Associate">Technical Associate</option>
+                  <option value="Corporate Associate">Corporate Associate</option>
                 </optgroup>
                 <optgroup label="Board & Lead Positions">
                   <option value="Secretary">Secretary</option>
