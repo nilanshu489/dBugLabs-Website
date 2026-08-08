@@ -529,7 +529,7 @@
   overflow: hidden;
   pointer-events: none;
   /* buildTrace() in HeroScene.jsx recomputes this — keep them equal */
-  --planet-size: calc(min(115vmin, 1280px) + 355px);
+  --planet-size: calc(min(115vmin, 1280px) + 605px);
 }
 
 /* Deep space wash behind everything */
@@ -995,14 +995,18 @@
 
 /* The planet: a true circle. buildTrace() in HeroScene.jsx recomputes
    this same circle in pixels to lay the rim light on it — keep the two in
-   step. `top` is the centre; the +100px fixes the top of the circle 100px
-   below the top of the hero at any planet size — just under the navbar
-   (~96px) and clear of the hero copy — with a 62% floor for tall narrow
-   screens. */
+   step. `top` is the centre; the +50px fixes the top of the circle 50px below
+   the top of the hero at any planet size, with a 62% floor for tall narrow
+   screens.
+
+   Raising the circle and widening it both push the arc further out at the
+   height the hero copy sits at — which is what keeps the sides of the arc off
+   the wordmark. The apex now passes behind the navbar, which is transparent
+   at scroll-top, so the beam and the arc share that space. */
 .cosmic-planet {
   position: absolute;
   left: 50%;
-  top: max(calc(var(--planet-size) / 2 + 100px), 62%);
+  top: max(calc(var(--planet-size) / 2 + 50px), 62%);
   width: var(--planet-size);
   height: var(--planet-size);
   transform: translate(-50%, -50%);
