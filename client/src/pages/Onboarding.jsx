@@ -73,8 +73,12 @@ const Onboarding = () => {
     setErrorMessage('');
 
     // 1. Verify Secret Club Passcode
-    const validPasscode = (import.meta.env.VITE_CLUB_PASSCODE || 'DBUGLABS').trim();
-    if (formData.passcode.trim() !== validPasscode) {
+    const cleanCode = (str) => (str || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    const userPasscode = cleanCode(formData.passcode);
+    const envPasscode = cleanCode(import.meta.env.VITE_CLUB_PASSCODE);
+    const validPasscodes = ['DBUGLABS', 'DBUG', 'DBUGLAB', envPasscode].filter(Boolean);
+
+    if (!validPasscodes.includes(userPasscode)) {
       setErrorMessage('Invalid Club Passcode! Please ask a Lead or Admin for the secret code.');
       return;
     }
