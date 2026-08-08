@@ -1,195 +1,127 @@
 import { useState } from 'react';
-import TeamGrid from '../components/team/TeamGrid';
+import { Users, Code2, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
+import MemberGrid from '../components/team/MemberGrid';
 import { useTeamData } from '../hooks/useTeamData';
-import { Users, Code2, Lightbulb, Target, Megaphone, DollarSign, Palette, ChevronDown, ChevronUp } from 'lucide-react';
+import { POSITIONS } from '../data/roster';
+import { Container, PageHeader } from '../components/ui';
+import cx from '../lib/cx';
+
+/** The two verticals, in page order. */
+const VERTICALS = [
+  { key: 'technical', title: 'Technical', icon: Code2, tone: 'text-blue-400' },
+  { key: 'corporate', title: 'Corporate', icon: Megaphone, tone: 'text-pink-400' },
+];
+
+const CollapsibleSection = ({ id, title, icon: Icon, tone, isOpen, onToggle, children }) => (
+  <section className="mb-16 lg:mb-20">
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      aria-controls={`${id}-panel`}
+      className="mb-8 flex w-full items-center justify-between gap-4 text-left"
+    >
+      <span className="flex items-center gap-3">
+        <Icon className={cx('h-7 w-7 sm:h-8 sm:w-8', tone)} />
+        <span className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">{title}</span>
+      </span>
+      {isOpen ? (
+        <ChevronUp className={cx('h-6 w-6 shrink-0', tone)} />
+      ) : (
+        <ChevronDown className={cx('h-6 w-6 shrink-0', tone)} />
+      )}
+    </button>
+
+    {isOpen && <div id={`${id}-panel`}>{children}</div>}
+  </section>
+);
+
+const Subgroup = ({ title, tone, members, emptyLabel }) => (
+  <div>
+    <h3 className={cx('mb-6 text-xl font-semibold sm:text-2xl', tone ?? 'text-white')}>{title}</h3>
+    {members.length > 0 ? (
+      <MemberGrid members={members} />
+    ) : (
+      <p className="py-8 text-center text-gray-500">{emptyLabel}</p>
+    )}
+  </div>
+);
 
 const Team = () => {
-  const [expandedSections, setExpandedSections] = useState({
+  const [openSections, setOpenSections] = useState({
     board: true,
     technical: true,
-    webdev: true,
-    aiml: true,
     corporate: true,
-    events: true,
-    pr: true,
-    sponsorship: true,
-    creatives: true,
   });
 
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+  const toggleSection = (key) =>
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const team = useTeamData();
+  const { boardMembers, technicalMembers, corporateMembers } = team;
+
+  /**
+   * Flatten every seat of a given kind into one list. Driven by POSITIONS, so
+   * adding a domain there puts it on the page without touching this file.
+   */
+  const collect = (group, kind) =>
+    POSITIONS.filter((position) => position.group === group && position.kind === kind).flatMap(
+      (position) => team[position.key] ?? [],
+    );
+
+  const membersFor = {
+    technical: technicalMembers,
+    corporate: corporateMembers,
   };
 
-  const {
-    boardMembers,
-    webDevLead,
-    appDevLead,
-    qaLead,
-    aimlLead,
-    webDevAssociate,
-    appDevAssociate,
-    qaAssociate,
-    aimlAssociate,
-    technicalMembers,
-    eventsLead,
-    sponsorshipLead,
-    prLead,
-    creativesLead,
-    eventsAssociate,
-    sponsorshipAssociate,
-    prAssociate,
-    creativesAssociate,
-    corporateMembers,
-    isLoading
-  } = useTeamData();
-
   return (
-    <main className="bg-black min-h-screen pt-24 pb-16">
-      <div className="container mx-auto px-4">
-        {/* Page Header */}
-        <div className="text-center mb-16">
-          <span className="text-pink-400 text-sm font-semibold tracking-wider uppercase">Our People</span>
-          <h1 className="text-4xl md:text-5xl font-bold mt-2 mb-4">
-            Meet the <span className="gradient-text">Team</span>
-          </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            The passionate individuals behind dBug Labs who make everything possible
-          </p>
-        </div>
+    <main className="min-h-screen pt-24 pb-16">
+      <Container>
+        <PageHeader
+          eyebrow="Our People"
+          title={
+            <>
+              Meet the <span className="gradient-text">Team</span>
+            </>
+          }
+          description="The passionate individuals behind dBug Labs who make everything possible"
+          className="mb-16"
+        />
 
-        {/* Board Members Section */}
-        <div className="mb-20">
-          <div
-            className="flex items-center justify-between cursor-pointer mb-8"
-            onClick={() => toggleSection('board')}
+        <CollapsibleSection
+          id="board"
+          title="Board Members"
+          icon={Users}
+          tone="text-purple-400"
+          isOpen={openSections.board}
+          onToggle={() => toggleSection('board')}
+        >
+          <MemberGrid members={boardMembers} />
+        </CollapsibleSection>
+
+        {VERTICALS.map(({ key, title, icon, tone }) => (
+          <CollapsibleSection
+            key={key}
+            id={key}
+            title={title}
+            icon={icon}
+            tone={tone}
+            isOpen={openSections[key]}
+            onToggle={() => toggleSection(key)}
           >
-            <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-purple-400" />
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Board Members</h2>
-            </div>
-            {expandedSections.board ? <ChevronUp className="w-6 h-6 text-purple-400" /> : <ChevronDown className="w-6 h-6 text-purple-400" />}
-          </div>
-
-          {expandedSections.board && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {boardMembers.map((member, index) => (
-                <TeamGrid key={index} members={[member]} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Technical Domain */}
-        <div className="mb-20">
-          <div
-            className="flex items-center justify-between cursor-pointer mb-8"
-            onClick={() => toggleSection('technical')}
-          >
-            <div className="flex items-center gap-3">
-              <Code2 className="w-8 h-8 text-blue-400" />
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Technical</h2>
-            </div>
-            {expandedSections.technical ? <ChevronUp className="w-6 h-6 text-blue-400" /> : <ChevronDown className="w-6 h-6 text-blue-400" />}
-          </div>
-
-          {expandedSections.technical && (
             <div className="space-y-12">
-              {/* Leads Section */}
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-6">Leads</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={Array.isArray(webDevLead) ? webDevLead : [webDevLead]} />
-                  <TeamGrid members={Array.isArray(appDevLead) ? appDevLead : [appDevLead]} />
-                  <TeamGrid members={Array.isArray(qaLead) ? qaLead : [qaLead]} />
-                  <TeamGrid members={Array.isArray(aimlLead) ? aimlLead : [aimlLead]} />
-                </div>
-              </div>
-
-              {/* Associates Section */}
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={Array.isArray(webDevAssociate) ? webDevAssociate : [webDevAssociate]} />
-                  <TeamGrid members={Array.isArray(appDevAssociate) ? appDevAssociate : [appDevAssociate]} />
-                  <TeamGrid members={Array.isArray(qaAssociate) ? qaAssociate : [qaAssociate]} />
-                  <TeamGrid members={Array.isArray(aimlAssociate) ? aimlAssociate : [aimlAssociate]} />
-                </div>
-              </div>
-
-              {/* Members Section */}
-              <div>
-                <h3 className="text-xl font-semibold text-blue-400 mb-6">Members</h3>
-                {technicalMembers.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                    {technicalMembers.map((member, index) => (
-                      <TeamGrid key={index} members={[member]} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">Members will be announced soon</p>
-                )}
-              </div>
+              <Subgroup title="Leads" members={collect(key, 'lead')} />
+              <Subgroup title="Associates" members={collect(key, 'associate')} />
+              <Subgroup
+                title="Members"
+                tone={tone}
+                members={membersFor[key]}
+                emptyLabel="Members will be announced soon"
+              />
             </div>
-          )}
-        </div>
-
-        {/* Corporate Domain */}
-        <div className="mb-20">
-          <div
-            className="flex items-center justify-between cursor-pointer mb-8"
-            onClick={() => toggleSection('corporate')}
-          >
-            <div className="flex items-center gap-3">
-              <Megaphone className="w-8 h-8 text-pink-400" />
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Corporate</h2>
-            </div>
-            {expandedSections.corporate ? <ChevronUp className="w-6 h-6 text-pink-400" /> : <ChevronDown className="w-6 h-6 text-pink-400" />}
-          </div>
-
-          {expandedSections.corporate && (
-            <div className="space-y-12">
-              {/* Leads Section */}
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-6">Leads</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={Array.isArray(eventsLead) ? eventsLead : [eventsLead]} />
-                  <TeamGrid members={Array.isArray(sponsorshipLead) ? sponsorshipLead : [sponsorshipLead]} />
-                  <TeamGrid members={Array.isArray(prLead) ? prLead : [prLead]} />
-                  <TeamGrid members={Array.isArray(creativesLead) ? creativesLead : [creativesLead]} />
-                </div>
-              </div>
-
-              {/* Associates Section */}
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-6">Associates</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <TeamGrid members={Array.isArray(eventsAssociate) ? eventsAssociate : [eventsAssociate]} />
-                  <TeamGrid members={Array.isArray(sponsorshipAssociate) ? sponsorshipAssociate : [sponsorshipAssociate]} />
-                  <TeamGrid members={Array.isArray(prAssociate) ? prAssociate : [prAssociate]} />
-                  <TeamGrid members={Array.isArray(creativesAssociate) ? creativesAssociate : [creativesAssociate]} />
-                </div>
-              </div>
-
-              {/* Members Section */}
-              <div>
-                <h3 className="text-xl font-semibold text-pink-400 mb-6">Members</h3>
-                {corporateMembers.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                    {corporateMembers.map((member, index) => (
-                      <TeamGrid key={index} members={[member]} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">Members will be announced soon</p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+          </CollapsibleSection>
+        ))}
+      </Container>
     </main>
   );
 };

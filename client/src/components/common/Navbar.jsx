@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import { navLinks } from '../../data/navigation';
+import { site } from '../../data/site';
+import { Button, Container } from '../ui';
+import cx from '../../lib/cx';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,116 +13,100 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Team', path: '/team' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Events', path: '/events' },
-  ];
+  const isActive = (path) => location.pathname === path;
 
-  const isActive = (path) => {
-    if (path.startsWith('/#')) {
-      return location.pathname === '/' && location.hash === path.substring(1);
-    }
-    return location.pathname === path;
-  };
+  // Navigating with the mobile menu open would otherwise leave it covering the
+  // new page, so every item in it closes the menu on the way out.
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-black/90 backdrop-blur-md border-b border-purple-500/20'
-          : 'bg-transparent'
-      }`}
+      className={cx(
+        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+        scrolled ? 'border-b border-purple-500/20 bg-black/90 backdrop-blur-md' : 'bg-transparent',
+      )}
     >
-      <div className="max-w-full mx-4 md:mx-8 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src={logo} 
-              alt="dBug Labs Logo" 
-              className="w-14 h-14 md:w-16 md:h-16 object-contain group-hover:scale-110 transition-transform"
+      {/* Same Container as every page, so the logo lines up with page content. */}
+      <Container className="py-4">
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/" className="group flex items-center gap-2">
+            <img
+              src={logo}
+              alt={`${site.name} logo`}
+              className="h-14 w-14 object-contain transition-transform group-hover:scale-110 md:h-16 md:w-16"
             />
-            <div className="hidden sm:block">
-              <span className="text-lg md:text-xl font-bold gradient-text tracking-wider" style={{ fontFamily: "'Orbitron', sans-serif" }}>dBug Labs</span>
-              <span className="text-xs text-gray-400 block -mt-1 tracking-widest uppercase">SRM</span>
-            </div>
+            <span className="hidden sm:block">
+              <span className="gradient-text font-display text-lg md:text-xl">{site.name}</span>
+              <span className="eyebrow mt-1 block text-[0.6rem] text-gray-400">{site.campus}</span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`nav-link text-sm font-medium ${
-                  isActive(link.path)
-                    ? 'text-pink-400'
-                    : 'text-gray-300 hover:text-white'
-                }`}
+                aria-current={isActive(link.path) ? 'page' : undefined}
+                className={cx(
+                  'nav-link text-sm font-medium',
+                  isActive(link.path) ? 'text-pink-400' : 'text-gray-300 hover:text-white',
+                )}
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* Wrapper, not `hidden` on the Button itself: Button bakes
+              `inline-flex` into its base classes and Tailwind emits
+              `.inline-flex` after `.hidden`, so it would always win. */}
           <div className="hidden md:block">
-            <Link
-              to="/contact"
-              className="btn-primary text-sm"
-            >
+            <Button to="/contact" size="sm">
               Contact Us
-            </Link>
+            </Button>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white p-2"
-            onClick={() => setIsOpen(!isOpen)}
+            type="button"
+            className="p-2 text-white md:hidden"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((open) => !open)}
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-purple-500/20 pt-4 bg-black/95 backdrop-blur-md rounded-lg">
-            <div className="flex flex-col gap-4">
+          <div className="mt-4 rounded-lg border-t border-purple-500/20 bg-black/95 pt-4 pb-4 backdrop-blur-md md:hidden">
+            <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`text-sm font-medium py-2 px-3 rounded-md hover:bg-white/10 transition-colors ${
-                    isActive(link.path)
-                      ? 'text-pink-400'
-                      : 'text-gray-300 hover:text-white'
-                  }`}
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMenu}
+                  aria-current={isActive(link.path) ? 'page' : undefined}
+                  className={cx(
+                    'rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10',
+                    isActive(link.path) ? 'text-pink-400' : 'text-gray-300 hover:text-white',
+                  )}
                 >
                   {link.name}
                 </Link>
               ))}
-              <Link
-                to="/contact"
-                className="btn-primary text-sm text-center mt-2"
-                onClick={() => setIsOpen(false)}
-              >
+              <Button to="/contact" size="sm" fullWidth className="mt-2" onClick={closeMenu}>
                 Contact Us
-              </Link>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Container>
     </nav>
   );
 };

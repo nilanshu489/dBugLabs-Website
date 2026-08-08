@@ -1,293 +1,167 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { client, urlFor } from '../sanityClient';
+import {
+  BOARD_ROLES,
+  CORP_DOMAINS,
+  DEFAULT_CORPORATE_MEMBERS,
+  DEFAULT_TECHNICAL_MEMBERS,
+  EXCLUDED_CORP_ROLES,
+  EXCLUDED_TECH_ROLES,
+  POSITIONS,
+  TECH_DOMAINS,
+  placeholderFor,
+} from '../data/roster';
 
-// Allowed names for regular member onboarding (/join)
-export const ALLOWED_NAMES = [
-  'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh',
-  'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan',
-  'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Aanvi Gandhi',
-  'Dharshini', 'Shashank Singh', 'Piyush Kumar',
-  'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL',
-  'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna',
-  'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R'
+export { ALLOWED_NAMES, ALLOWED_LEAD_NAMES } from '../data/roster';
+
+const normalise = (value) => value?.toLowerCase().trim() ?? '';
+
+const isMatch = (a, b) => normalise(a) === normalise(b) && normalise(a) !== '';
+
+/**
+ * Domains are spelled inconsistently across the two Sanity schemas and the
+ * hardcoded defaults ("Web Dev" vs "Web Development", "QA" vs "QA & Testing"),
+ * so they are compared on a distinctive substring rather than exactly.
+ */
+const DOMAIN_TOKENS = [
+  ['web'],
+  ['app'],
+  ['qa', 'testing'],
+  ['ai'],
+  ['event'],
+  ['sponsor'],
+  ['pr', 'public relation'],
+  ['creative'],
 ];
 
-// Allowed names for board/lead/associate onboarding (/lead-onboarding)
-export const ALLOWED_LEAD_NAMES = [
-  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead',
-  'Web Dev Lead', 'AI/ML Lead', 'Events Lead', 'Sponsorship Lead',
-  'PR Lead', 'Creatives Lead',
-  'Web Dev Associate', 'AI/ML Associate', 'Events Associate',
-  'Sponsorship Associate', 'PR Associate', 'Creatives Associate',
-  'Technical Associate', 'Corporate Associate'
-];
+const isDomainMatch = (a, b) => {
+  const left = normalise(a);
+  const right = normalise(b);
+  if (!left || !right) return false;
+  if (left === right) return true;
+  return DOMAIN_TOKENS.some(
+    (tokens) => tokens.some((t) => left.includes(t)) && tokens.some((t) => right.includes(t)),
+  );
+};
 
-const EXCLUDED_TECH_ROLES = [
-  'Web Dev Lead', 'App Dev Lead', 'QA Lead', 'QA & Testing Lead', 'AI/ML Lead', 'Technical Lead', 'Lead',
-  'Web Dev Associate', 'App Dev Associate', 'QA Associate', 'QA & Testing Associate', 'AI/ML Associate', 'Technical Associate', 'Associate'
-];
+/** Sanity document -> the shape the team components render. */
+const formatMember = (doc) => ({
+  name: doc.name,
+  role: doc.role,
+  domain: doc.domain,
+  image: doc.image ? urlFor(doc.image).url() : '',
+  imageScale: doc.imageScale,
+  imagePosition: doc.imagePosition,
+  socials: doc.socials || {},
+});
 
-const EXCLUDED_CORP_ROLES = [
-  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead', 'Corporate Lead', 'Lead',
-  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Creatives Associate', 'Corporate Associate', 'Associate'
-];
+/** CMS entries for a vertical, plus any default who has no CMS entry yet. */
+const mergeMembersLists = (defaults, fetched, domains, excludedRoles) => {
+  const fromCms = fetched.filter(
+    (m) => domains.includes(m.domain) && !excludedRoles.includes(m.role),
+  );
+  // Compared against everything fetched, not just this vertical, so somebody
+  // who switched domains isn't listed twice.
+  const stillMissing = defaults.filter((d) => !fetched.some((f) => isMatch(f.name, d.name)));
+  return [...fromCms, ...stillMissing];
+};
 
+/**
+ * Everyone holding a given seat. "Lead"/"Associate" is the current shape;
+ * older documents carry the domain in the role itself ("Web Dev Lead"), and
+ * anything ending in the right word counts — except the two board seats,
+ * which are listed separately.
+ */
+const findHolders = (people, { kind, domain, legacyRole }) => {
+  const suffix = kind === 'lead' ? 'lead' : 'associate';
+  const canonical = kind === 'lead' ? 'Lead' : 'Associate';
+
+  return people.filter((person) => {
+    if (!isDomainMatch(person.domain, domain)) return false;
+    if (person.role === canonical || person.role === legacyRole) return true;
+    if (person.role === 'Technical Lead' || person.role === 'Corporate Lead') return false;
+    return normalise(person.role).endsWith(suffix);
+  });
+};
+
+const initialPositions = () =>
+  Object.fromEntries(POSITIONS.map((position) => [position.key, [placeholderFor(position)]]));
+
+const initialBoard = () =>
+  BOARD_ROLES.map((role) => ({
+    name: 'To Be Announced',
+    role,
+    domain: 'Board',
+    bio: '',
+    image: '',
+    socials: {},
+  }));
+
+/**
+ * Team roster, merged from two Sanity schemas over a hardcoded fallback.
+ *
+ * Every lead/associate slot is returned as an **array**, so a domain with two
+ * leads needs no special-casing at the call site.
+ */
 export const useTeamData = () => {
-  // Board members — placeholder defaults, overridden by Sanity boardAndLead data
-  const [boardMembers, setBoardMembers] = useState([
-    { name: 'To Be Announced', role: 'Secretary', domain: 'Board', bio: '', image: '', socials: {} },
-    { name: 'To Be Announced', role: 'Joint Secretary', domain: 'Board', bio: '', image: '', socials: {} },
-    { name: 'To Be Announced', role: 'Technical Lead', domain: 'Board', bio: '', image: '', socials: {} },
-    { name: 'To Be Announced', role: 'Corporate Lead', domain: 'Board', bio: '', image: '', socials: {} }
-  ]);
-
-  // Technical Lead & Associate positions
-  const [webDevLead, setWebDevLead] = useState({
-    name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {}
-  });
-
-  const [appDevLead, setAppDevLead] = useState({
-    name: 'To Be Announced', role: 'App Dev Lead', domain: 'App Development', bio: '', image: '', socials: {}
-  });
-
-  const [qaLead, setQaLead] = useState({
-    name: 'To Be Announced', role: 'QA & Testing Lead', domain: 'QA & Testing', bio: '', image: '', socials: {}
-  });
-
-  const [aimlLead, setAimlLead] = useState({
-    name: 'To Be Announced', role: 'AI/ML Lead', domain: 'AI/ML', bio: '', image: '', socials: {}
-  });
-
-  const [webDevAssociate, setWebDevAssociate] = useState({
-    name: 'To Be Announced', role: 'Web Dev Associate', domain: 'Web Development', bio: '', image: '', socials: {}
-  });
-
-  const [appDevAssociate, setAppDevAssociate] = useState({
-    name: 'To Be Announced', role: 'App Dev Associate', domain: 'App Development', bio: '', image: '', socials: {}
-  });
-
-  const [qaAssociate, setQaAssociate] = useState({
-    name: 'To Be Announced', role: 'QA & Testing Associate', domain: 'QA & Testing', bio: '', image: '', socials: {}
-  });
-
-  const [aimlAssociate, setAimlAssociate] = useState({
-    name: 'To Be Announced', role: 'AI/ML Associate', domain: 'AI/ML', bio: '', image: '', socials: {}
-  });
-
-  const [technicalMembers, setTechnicalMembers] = useState([
-    { name: 'Dhriti', role: 'Member', domain: 'AI/ML', bio: '', image: '', socials: {} },
-    { name: 'Ayush Rudra', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Chandra Pratap Singh', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Aditya Raj Singh', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Roudra Ghosal', role: 'Member', domain: 'AI/ML', bio: '', image: '', socials: {} },
-    { name: 'Raja Abhiram', role: 'Member', domain: 'AI/ML', bio: '', image: '', socials: {} },
-    { name: 'Mutthuram S R', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Shrutiparna Phookan', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Saalini', role: 'Member', domain: 'AI/ML', bio: '', image: '', socials: {} },
-    { name: 'Vaishnavi Jagtap', role: 'Member', domain: 'Web Development', bio: '', image: '', socials: {} },
-    { name: 'Aanvi Gandhi', role: 'Member', domain: 'Technical', bio: '', image: '', socials: {} },
-  ]);
-
-  // Corporate Lead & Associate positions
-  const [eventsLead, setEventsLead] = useState({
-    name: 'To Be Announced', role: 'Events Lead', domain: 'Events', bio: '', image: '', socials: {}
-  });
-
-  const [sponsorshipLead, setSponsorshipLead] = useState({
-    name: 'To Be Announced', role: 'Sponsorship Lead', domain: 'Sponsorship', bio: '', image: '', socials: {}
-  });
-
-  const [prLead, setPrLead] = useState({
-    name: 'To Be Announced', role: 'PR Lead', domain: 'Public Relations', bio: '', image: '', socials: {}
-  });
-
-  const [creativesLead, setCreativesLead] = useState({
-    name: 'To Be Announced', role: 'Creatives Lead', domain: 'Creatives', bio: '', image: '', socials: {}
-  });
-
-  const [eventsAssociate, setEventsAssociate] = useState({
-    name: 'To Be Announced', role: 'Events Associate', domain: 'Events', bio: '', image: '', socials: {}
-  });
-
-  const [sponsorshipAssociate, setSponsorshipAssociate] = useState({
-    name: 'To Be Announced', role: 'Sponsorship Associate', domain: 'Sponsorship', bio: '', image: '', socials: {}
-  });
-
-  const [prAssociate, setPrAssociate] = useState({
-    name: 'To Be Announced', role: 'PR Associate', domain: 'Public Relations', bio: '', image: '', socials: {}
-  });
-
-  const [creativesAssociate, setCreativesAssociate] = useState({
-    name: 'To Be Announced', role: 'Creatives Associate', domain: 'Creatives', bio: '', image: '', socials: {}
-  });
-
-  const [corporateMembers, setCorporateMembers] = useState([
-    { name: 'Dharshini', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
-    { name: 'Shashank Singh', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
-    { name: 'Piyush Kumar', role: 'Member', domain: 'Creatives', bio: '', image: '', socials: {} },
-    { name: 'T Sampath Eswar', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-    { name: 'Ritesh Rajpal', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-    { name: 'M Vaishnavi Sai', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-    { name: 'Asrita AVL', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-    { name: 'Shiva Krishna', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-    { name: 'Vanshika Singh', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
-    { name: 'Parnika Jain', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
-    { name: 'Mithran G R', role: 'Member', domain: 'Events', bio: '', image: '', socials: {} },
-    { name: 'Mridul Krishna', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
-    { name: 'Charan Peddi', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
-    { name: 'Radha Raman Panda', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
-    { name: 'Snehil Kumar Tiwari', role: 'Member', domain: 'Public Relations', bio: '', image: '', socials: {} },
-    { name: 'Prakhar Pandey', role: 'Member', domain: 'Sponsorship', bio: '', image: '', socials: {} },
-  ]);
-
+  const [boardMembers, setBoardMembers] = useState(initialBoard);
+  const [positions, setPositions] = useState(initialPositions);
+  const [technicalMembers, setTechnicalMembers] = useState(DEFAULT_TECHNICAL_MEMBERS);
+  const [corporateMembers, setCorporateMembers] = useState(DEFAULT_CORPORATE_MEMBERS);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch Sanity Data — regular members & leads/associates
   useEffect(() => {
+    let cancelled = false;
+
     const fetchAll = async () => {
       try {
-        let formattedMembers = [];
-        let formattedLeads = [];
+        const [memberDocs, leadDocs] = await Promise.all([
+          client.fetch('*[_type == "teamMember"]'),
+          client.fetch('*[_type == "boardAndLead"]'),
+        ]);
 
-        // Fetch regular team members
-        const memberData = await client.fetch('*[_type == "teamMember"]');
-        if (memberData && memberData.length > 0) {
-          formattedMembers = memberData.map(member => ({
-            name: member.name,
-            role: member.role,
-            domain: member.domain,
-            image: member.image ? urlFor(member.image).url() : '',
-            imageScale: member.imageScale,
-            imagePosition: member.imagePosition,
-            socials: member.socials || {}
-          }));
+        if (cancelled) return;
 
-          setTechnicalMembers(prev => mergeMembersLists(prev, formattedMembers, ['Web Development', 'Web Dev', 'App Development', 'App Dev', 'QA & Testing', 'QA and Testing', 'AI/ML', 'Technical'], EXCLUDED_TECH_ROLES));
-          setCorporateMembers(prev => mergeMembersLists(prev, formattedMembers, ['Creatives', 'Sponsorship', 'Events', 'Public Relations', 'PR'], EXCLUDED_CORP_ROLES));
+        const members = (memberDocs ?? []).map(formatMember);
+        const leads = (leadDocs ?? []).map(formatMember);
+        const everyone = [...members, ...leads];
+
+        if (members.length > 0) {
+          setTechnicalMembers((prev) =>
+            mergeMembersLists(prev, members, TECH_DOMAINS, EXCLUDED_TECH_ROLES),
+          );
+          setCorporateMembers((prev) =>
+            mergeMembersLists(prev, members, CORP_DOMAINS, EXCLUDED_CORP_ROLES),
+          );
         }
 
-        // Fetch board & lead data
-        const leadData = await client.fetch('*[_type == "boardAndLead"]');
-        if (leadData && leadData.length > 0) {
-          formattedLeads = leadData.map(member => ({
-            name: member.name,
-            role: member.role,
-            domain: member.domain,
-            image: member.image ? urlFor(member.image).url() : '',
-            imageScale: member.imageScale,
-            imagePosition: member.imagePosition,
-            socials: member.socials || {}
-          }));
-
-          // Update board members
-          setBoardMembers(prev => {
-            return prev.map(placeholder => {
-              const match = formattedLeads.find(l => l.role === placeholder.role);
-              return match || placeholder;
-            });
-          });
+        if (leads.length > 0) {
+          setBoardMembers((prev) =>
+            prev.map((seat) => leads.find((lead) => lead.role === seat.role) ?? seat),
+          );
         }
 
-        // Combine fetched entries from both schemas to find leads and associates
-        const allFetched = [...formattedMembers, ...formattedLeads];
-
-        const isDomainMatch = (d1, d2) => {
-          if (!d1 || !d2) return false;
-          const s1 = d1.toLowerCase().trim();
-          const s2 = d2.toLowerCase().trim();
-          if (s1 === s2) return true;
-          if (s1.includes('web') && s2.includes('web')) return true;
-          if (s1.includes('app') && s2.includes('app')) return true;
-          if ((s1.includes('qa') || s1.includes('testing')) && (s2.includes('qa') || s2.includes('testing'))) return true;
-          if (s1.includes('ai') && s2.includes('ai')) return true;
-          if (s1.includes('event') && s2.includes('event')) return true;
-          if (s1.includes('sponsor') && s2.includes('sponsor')) return true;
-          if ((s1.includes('pr') || s1.includes('public relation')) && (s2.includes('pr') || s2.includes('public relation'))) return true;
-          if (s1.includes('creative') && s2.includes('creative')) return true;
-          return false;
-        };
-
-        const findAllLeads = (domainName, legacyRoleName, defaultPlaceholder) => {
-          const matches = allFetched.filter(m => {
-            if (!isDomainMatch(m.domain, domainName)) return false;
-            const r = m.role?.toLowerCase() || '';
-            return m.role === 'Lead' || m.role === legacyRoleName || (r.endsWith('lead') && m.role !== 'Technical Lead' && m.role !== 'Corporate Lead');
-          });
-          return matches.length > 0 ? matches : [defaultPlaceholder];
-        };
-
-        const findAllAssociates = (domainName, legacyRoleName, defaultPlaceholder) => {
-          const matches = allFetched.filter(m => {
-            if (!isDomainMatch(m.domain, domainName)) return false;
-            const r = m.role?.toLowerCase() || '';
-            return m.role === 'Associate' || m.role === legacyRoleName || r.endsWith('associate');
-          });
-          return matches.length > 0 ? matches : [defaultPlaceholder];
-        };
-
-        setWebDevLead(findAllLeads('Web Development', 'Web Dev Lead', { name: 'To Be Announced', role: 'Web Dev Lead', domain: 'Web Development', bio: '', image: '', socials: {} }));
-        setAppDevLead(findAllLeads('App Development', 'App Dev Lead', { name: 'To Be Announced', role: 'App Dev Lead', domain: 'App Development', bio: '', image: '', socials: {} }));
-        setQaLead(findAllLeads('QA & Testing', 'QA & Testing Lead', { name: 'To Be Announced', role: 'QA & Testing Lead', domain: 'QA & Testing', bio: '', image: '', socials: {} }));
-        setAimlLead(findAllLeads('AI/ML', 'AI/ML Lead', { name: 'To Be Announced', role: 'AI/ML Lead', domain: 'AI/ML', bio: '', image: '', socials: {} }));
-
-        setWebDevAssociate(findAllAssociates('Web Development', 'Web Dev Associate', { name: 'To Be Announced', role: 'Web Dev Associate', domain: 'Web Development', bio: '', image: '', socials: {} }));
-        setAppDevAssociate(findAllAssociates('App Development', 'App Dev Associate', { name: 'To Be Announced', role: 'App Dev Associate', domain: 'App Development', bio: '', image: '', socials: {} }));
-        setQaAssociate(findAllAssociates('QA & Testing', 'QA & Testing Associate', { name: 'To Be Announced', role: 'QA & Testing Associate', domain: 'QA & Testing', bio: '', image: '', socials: {} }));
-        setAimlAssociate(findAllAssociates('AI/ML', 'AI/ML Associate', { name: 'To Be Announced', role: 'AI/ML Associate', domain: 'AI/ML', bio: '', image: '', socials: {} }));
-
-        setEventsLead(findAllLeads('Events', 'Events Lead', { name: 'To Be Announced', role: 'Events Lead', domain: 'Events', bio: '', image: '', socials: {} }));
-        setSponsorshipLead(findAllLeads('Sponsorship', 'Sponsorship Lead', { name: 'To Be Announced', role: 'Sponsorship Lead', domain: 'Sponsorship', bio: '', image: '', socials: {} }));
-        setPrLead(findAllLeads('Public Relations', 'PR Lead', { name: 'To Be Announced', role: 'PR Lead', domain: 'Public Relations', bio: '', image: '', socials: {} }));
-        setCreativesLead(findAllLeads('Creatives', 'Creatives Lead', { name: 'To Be Announced', role: 'Creatives Lead', domain: 'Creatives', bio: '', image: '', socials: {} }));
-
-        setEventsAssociate(findAllAssociates('Events', 'Events Associate', { name: 'To Be Announced', role: 'Events Associate', domain: 'Events', bio: '', image: '', socials: {} }));
-        setSponsorshipAssociate(findAllAssociates('Sponsorship', 'Sponsorship Associate', { name: 'To Be Announced', role: 'Sponsorship Associate', domain: 'Sponsorship', bio: '', image: '', socials: {} }));
-        setPrAssociate(findAllAssociates('Public Relations', 'PR Associate', { name: 'To Be Announced', role: 'PR Associate', domain: 'Public Relations', bio: '', image: '', socials: {} }));
-        setCreativesAssociate(findAllAssociates('Creatives', 'Creatives Associate', { name: 'To Be Announced', role: 'Creatives Associate', domain: 'Creatives', bio: '', image: '', socials: {} }));
-
-        setIsLoading(false);
-      } catch (err) {
-        console.error(err);
-        setIsLoading(false);
+        setPositions(
+          Object.fromEntries(
+            POSITIONS.map((position) => {
+              const holders = findHolders(everyone, position);
+              return [position.key, holders.length > 0 ? holders : [placeholderFor(position)]];
+            }),
+          ),
+        );
+      } catch (error) {
+        console.error('Failed to load team data from Sanity:', error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchAll();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Helper functions to merge hardcoded defaults with Sanity data
-  const isMatch = (str1, str2) => {
-    return str1?.toLowerCase().trim() === str2?.toLowerCase().trim();
-  };
-
-  const mergeMembersLists = (defaults, fetched, domains, excludedRoles) => {
-    const fetchedDomainMembers = fetched.filter(m => domains.includes(m.domain) && !excludedRoles.includes(m.role));
-    // Check against global fetched to avoid duplicating someone who changed domains
-    const unmatchedDefaults = defaults.filter(d => !fetched.find(f => isMatch(f.name, d.name)));
-    return [...fetchedDomainMembers, ...unmatchedDefaults];
-  };
-
-  return {
-    boardMembers,
-    webDevLead,
-    appDevLead,
-    qaLead,
-    aimlLead,
-    webDevAssociate,
-    appDevAssociate,
-    qaAssociate,
-    aimlAssociate,
-    technicalMembers,
-    eventsLead,
-    sponsorshipLead,
-    prLead,
-    creativesLead,
-    eventsAssociate,
-    sponsorshipAssociate,
-    prAssociate,
-    creativesAssociate,
-    corporateMembers,
-    isLoading
-  };
+  return { boardMembers, technicalMembers, corporateMembers, isLoading, ...positions };
 };
-
