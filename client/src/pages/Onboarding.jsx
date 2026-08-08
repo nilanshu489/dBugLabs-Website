@@ -111,10 +111,15 @@ const Onboarding = () => {
         // --- LEAD / BOARD DOCUMENT TYPE ---
         const activeDomain = BOARD_ROLES.includes(selectedRole) ? 'Board' : formData.domain;
 
-        const existingLead = await writeClient.fetch(
-          '*[_type == "boardAndLead" && (role == $role || name == $name)][0]',
-          { role: selectedRole, name: inputName }
-        );
+        const existingLead = BOARD_ROLES.includes(selectedRole)
+          ? await writeClient.fetch(
+              '*[_type == "boardAndLead" && (role == $role || lower(name) == lower($name))][0]',
+              { role: selectedRole, name: inputName }
+            )
+          : await writeClient.fetch(
+              '*[_type == "boardAndLead" && (lower(name) == lower($name) || (role == $role && domain == $domain))][0]',
+              { role: selectedRole, domain: activeDomain, name: inputName }
+            );
 
         if (!existingLead && !imageRef) {
           setErrorMessage('Please upload a profile photo for your profile.');
@@ -148,7 +153,7 @@ const Onboarding = () => {
         const exactName = ALLOWED_NAMES.find(n => n.toLowerCase() === inputName.toLowerCase()) || inputName;
 
         const existingMember = await writeClient.fetch(
-          '*[_type == "teamMember" && name == $name][0]',
+          '*[_type == "teamMember" && lower(name) == lower($name)][0]',
           { name: exactName }
         );
 
@@ -197,7 +202,8 @@ const Onboarding = () => {
 
     } catch (error) {
       console.error('Submission error:', error);
-      setErrorMessage('Failed to connect to Sanity CMS. Please verify your internet connection or passcode.');
+      const detail = error?.message || '';
+      setErrorMessage(detail ? `Sanity Error: ${detail}` : 'Failed to connect to Sanity CMS. Please verify your internet connection or passcode.');
       setStatus('error');
     }
   };
