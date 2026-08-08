@@ -136,6 +136,30 @@
     line-height: 0.95;
   }
 
+  /* The hero slogan. Space Grotesk was already being loaded by index.html and
+     used nowhere — its wider, geometric letterforms read as a distinct voice
+     next to the Sora wordmark above and the mono eyebrow below, which is what
+     the previous light-Inter setting was missing. */
+  .hero-slogan {
+    font-family: 'Space Grotesk', 'Sora', 'Inter', sans-serif;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0.015em;
+
+    /* Runs the wordmark's purple -> pink -> rose in a lighter key, so it reads
+       as the same family without competing with it. Plain grey sat outside the
+       palette entirely. */
+    background-image: linear-gradient(100deg, #cbb6fd 0%, #f2a5dd 46%, #ffb4a2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    /* The glyph fill is transparent here, so an inherited text-shadow would
+       show *through* the letters. drop-shadow applies to the painted result. */
+    text-shadow: none;
+    filter: drop-shadow(0 2px 10px rgba(3, 0, 8, 0.85));
+  }
+
   /* Small tracked-out label — the "engineering" voice of the brand */
   .eyebrow {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -234,6 +258,28 @@
   text-shadow:
     0 1px 12px rgba(3, 0, 8, 0.9),
     0 0 28px rgba(3, 0, 8, 0.7);
+}
+
+/* Ramp from the hero's near-black planet surface into the cloud backdrop.
+   The hero ends dark and the next band is lit nebula, so without this they
+   meet on a hard horizontal line. Starts at the hero's own black so the two
+   are the same colour where they touch, then clears to let the clouds up. */
+.section-fade-top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: clamp(320px, 55vh, 720px);
+  background: linear-gradient(
+    to bottom,
+    #010004 0%,
+    rgba(2, 0, 6, 0.92) 18%,
+    rgba(3, 0, 8, 0.7) 38%,
+    rgba(3, 0, 8, 0.42) 58%,
+    rgba(3, 0, 8, 0.18) 78%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -833,8 +879,11 @@
   width: 100%;
   height: 46%;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
+  /* Fades out again before the hero's bottom edge. Running it to 100% cut the
+     molten glow off dead straight and left a visible line where the hero met
+     the next section. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 62%, transparent 97%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 62%, transparent 97%);
 }
 
 /* Molten heat rising out of the depths */

@@ -2,7 +2,7 @@ import { impactStats } from '../../data/stats';
 import { Section, SectionHeading, StatCard } from '../ui';
 
 const Impact = () => (
-  <Section glow="center">
+  <Section glow="center" fadeTop>
     <SectionHeading
       eyebrow="Making a Difference"
       title={

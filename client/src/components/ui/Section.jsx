@@ -21,6 +21,12 @@ const glows = {
  */
 const Section = ({
   glow = 'none',
+  /**
+   * Ramps the top of the section from the hero's near-black surface into the
+   * cloud backdrop. Without it the hero, which ends dark, butts straight up
+   * against bright nebula and leaves a hard horizontal seam.
+   */
+  fadeTop = false,
   width,
   className,
   containerClassName,
@@ -32,6 +38,7 @@ const Section = ({
     {...props}
   >
     {glows[glow] && <div className={cx('absolute inset-0', glows[glow])} aria-hidden="true" />}
+    {fadeTop && <div className="section-fade-top" aria-hidden="true" />}
     <Container width={width} className={cx('relative z-10', containerClassName)}>
       {children}
     </Container>

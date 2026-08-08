@@ -41,10 +41,13 @@ const Hero = () => (
           </span>
         </h1>
 
-        {/* Tagline — one sentence, unbroken */}
-        <p className="hero-span hero-tagline mx-auto max-w-2xl text-sm font-light leading-relaxed text-gray-300/90 sm:text-lg md:text-xl">
-          &ldquo;Found a bug? you came to the right place to fix it.&rdquo;
-        </p>
+        {/* Tagline — spans the full width, so it reads straight through the beam */}
+        <div className="hero-span hero-tagline flex flex-col items-center gap-2.5">
+          <span className="eyebrow">Engineering ideas into impact</span>
+          <p className="hero-slogan text-2xl sm:text-3xl md:text-4xl">
+            Build. Break. Become.
+          </p>
+        </div>
 
         {/* Calls to action */}
         <div className="hero-split__l hero-row-4">
