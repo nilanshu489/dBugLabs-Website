@@ -10,7 +10,7 @@ const statusStyles = {
 };
 
 const ProjectCard = ({ project }) => {
-  const { title, description, techStack, team, status, githubUrl, liveUrl, completionDate } =
+  const { title, description, image, techStack, team, status, githubUrl, liveUrl, completionDate } =
     project;
 
   const links = [
@@ -21,12 +21,20 @@ const ProjectCard = ({ project }) => {
   return (
     <Card interactive className="group flex h-full flex-col overflow-hidden">
       {/* Cover */}
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-900/50 to-pink-900/50">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 transition-transform duration-500 group-hover:scale-110">
-            <span className="text-3xl font-bold text-white">{title.charAt(0)}</span>
+      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-950/80 via-indigo-950/70 to-purple-950/90 border-b border-purple-500/20">
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="h-full w-full object-cover scale-[1.1] transition-transform duration-500 group-hover:scale-125 brightness-110 contrast-110"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 transition-transform duration-500 group-hover:scale-110">
+              <span className="text-3xl font-bold text-white">{title.charAt(0)}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <span
           className={cx(

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#360824"/>
+      <stop offset="50%" stop-color="#1f0314"/>
+      <stop offset="100%" stop-color="#0c0007"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4d6d"/>
+      <stop offset="50%" stop-color="#ff758f"/>
+      <stop offset="100%" stop-color="#c77dff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#c77dff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" rx="32" fill="url(#bgGrad)"/>
+  <circle cx="200" cy="200" r="160" fill="url(#glow)"/>
+
+  <!-- Lightbulb / Palette Body -->
+  <g filter="url(#neonBlur)">
+    <!-- Palette Oval -->
+    <path d="M 100 200 C 100 130 150 100 220 100 C 290 100 320 150 310 210 C 300 270 240 300 180 300 C 130 300 100 260 100 200 Z" fill="#200516" stroke="url(#primaryGrad)" stroke-width="5"/>
+    
+    <!-- Paint Color Swatches -->
+    <circle cx="150" cy="160" r="16" fill="#ff4d6d"/>
+    <circle cx="200" cy="140" r="16" fill="#ffb703"/>
+    <circle cx="250" cy="160" r="16" fill="#00f5d4"/>
+    <circle cx="270" cy="210" r="16" fill="#c77dff"/>
+
+    <!-- Thumb Hole -->
+    <circle cx="160" cy="240" r="20" fill="#0c0007" stroke="url(#primaryGrad)" stroke-width="3"/>
+  </g>
+
+  <!-- Cosmic Brush Sparkles -->
+  <polygon points="310,80 315,95 330,100 315,105 310,120 305,105 290,100 305,95" fill="#ff758f"/>
+  <polygon points="80,260 83,268 91,270 83,272 80,280 77,272 69,270 77,268" fill="#c77dff"/>
+</svg>

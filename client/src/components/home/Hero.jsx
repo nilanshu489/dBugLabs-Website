@@ -59,8 +59,12 @@ const Hero = () => (
           </Link>
         </div>
         <div className="hero-split__r hero-row-4">
-          {/* Placeholder href on purpose — not wired to /join yet. */}
-          <a href="#" className="btn-ghost">
+          <a
+            href="https://dbuglabsbnd.vercel.app/#top"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost"
+          >
             Join Us
             <span className="btn-chip">
               <UserPlus className="h-4 w-4" />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { initiatives } from '../../data/initiatives';
-import { Card, IconBadge, Section, SectionHeading } from '../ui';
+import { Card, Section, SectionHeading } from '../ui';
 import cx from '../../lib/cx';
 
 const Initiatives = () => {
@@ -44,7 +44,6 @@ const Initiatives = () => {
         <Card className="mb-8 p-8 md:p-12">
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div>
-              <IconBadge icon={ActiveIcon} size="lg" tone="solid" className="mb-6" />
               <h3 className="mb-4 text-3xl font-bold text-white">{active.title}</h3>
               <p className="mb-4 text-lg text-gray-300">{active.description}</p>
               <p className="text-gray-400">{active.details}</p>

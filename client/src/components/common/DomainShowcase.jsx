@@ -22,18 +22,21 @@ const DomainShowcase = ({ className }) => {
 
   return (
     <div className={className}>
-      <TabSwitcher tabs={tabs} value={activeDomain} onChange={setActiveDomain} className="mb-12" />
+      <TabSwitcher tabs={tabs} value={activeDomain} onChange={setActiveDomain} className="mb-14" />
 
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
         {domains[activeDomain].subdomains.map((subdomain) => (
           <FeatureCard
             key={subdomain.name}
+            to={`/domains/${subdomain.slug}`}
             icon={subdomain.icon}
+            image={subdomain.image}
             title={subdomain.name}
             description={subdomain.description}
             layout="inline"
+            imageSize="lg"
             action={
-              <ArrowRight className="h-5 w-5 text-purple-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              <ArrowRight className="h-6 w-6 text-purple-400 opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 group-hover:text-pink-400" />
             }
           />
         ))}

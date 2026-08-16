@@ -1,5 +1,6 @@
 import FoundersPhoto from '../components/about/FoundersPhoto';
 import History from '../components/about/History';
+import Mentors from '../components/about/Mentors';
 import Mission from '../components/about/Mission';
 import DomainShowcase from '../components/common/DomainShowcase';
 import { features } from '../data/initiatives';
@@ -21,6 +22,10 @@ const AboutPage = () => (
 
     <Section>
       <FoundersPhoto />
+    </Section>
+
+    <Section glow="center">
+      <Mentors />
     </Section>
 
     <Section glow="vertical">

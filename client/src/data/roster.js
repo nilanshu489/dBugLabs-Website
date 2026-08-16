@@ -43,6 +43,8 @@ export const ALLOWED_LEAD_NAMES = [
 /** Board seats, in the order the Team page lists them. */
 export const BOARD_ROLES = ['Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead'];
 
+export const DEFAULT_MENTORS = [];
+
 /** Domains that roll up under each vertical, including CMS spelling variants. */
 export const TECH_DOMAINS = [
   'Web Development', 'Web Dev', 'App Development', 'App Dev',

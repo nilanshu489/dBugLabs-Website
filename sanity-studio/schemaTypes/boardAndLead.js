@@ -19,6 +19,7 @@ export const boardAndLeadType = {
           { title: 'Joint Secretary', value: 'Joint Secretary' },
           { title: 'Technical Lead', value: 'Technical Lead' },
           { title: 'Corporate Lead', value: 'Corporate Lead' },
+          { title: 'Mentor', value: 'Mentor' },
           { title: 'Lead', value: 'Lead' },
           { title: 'Associate', value: 'Associate' },
           { title: 'Member', value: 'Member' },
@@ -46,10 +47,11 @@ export const boardAndLeadType = {
       name: 'domain',
       title: 'Domain',
       type: 'string',
-      description: 'Auto-set based on role. Board roles → "Board", otherwise derived from selected domain.',
+      description: 'Auto-set based on role. Board roles → "Board", Mentor → "Mentor", otherwise derived from selected domain.',
       options: {
         list: [
           { title: 'Board', value: 'Board' },
+          { title: 'Mentor', value: 'Mentor' },
           { title: 'Web Development', value: 'Web Development' },
           { title: 'App Development', value: 'App Development' },
           { title: 'QA & Testing', value: 'QA & Testing' },

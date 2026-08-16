@@ -4,6 +4,7 @@ import {
   BOARD_ROLES,
   CORP_DOMAINS,
   DEFAULT_CORPORATE_MEMBERS,
+  DEFAULT_MENTORS,
   DEFAULT_TECHNICAL_MEMBERS,
   EXCLUDED_CORP_ROLES,
   EXCLUDED_TECH_ROLES,
@@ -108,6 +109,7 @@ export const useTeamData = () => {
   const [positions, setPositions] = useState(initialPositions);
   const [technicalMembers, setTechnicalMembers] = useState(DEFAULT_TECHNICAL_MEMBERS);
   const [corporateMembers, setCorporateMembers] = useState(DEFAULT_CORPORATE_MEMBERS);
+  const [mentorMembers, setMentorMembers] = useState(DEFAULT_MENTORS);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -139,6 +141,12 @@ export const useTeamData = () => {
           setBoardMembers((prev) =>
             prev.map((seat) => leads.find((lead) => lead.role === seat.role) ?? seat),
           );
+          const fetchedMentors = leads.filter(
+            (m) => m.role === 'Mentor' || m.domain === 'Mentor',
+          );
+          if (fetchedMentors.length > 0) {
+            setMentorMembers(fetchedMentors);
+          }
         }
 
         setPositions(
@@ -163,5 +171,5 @@ export const useTeamData = () => {
     };
   }, []);
 
-  return { boardMembers, technicalMembers, corporateMembers, isLoading, ...positions };
+  return { boardMembers, technicalMembers, corporateMembers, mentorMembers, isLoading, ...positions };
 };

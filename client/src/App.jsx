@@ -11,6 +11,7 @@ import Projects from './pages/Projects';
 import EventsPage from './pages/Events';
 import Contact from './pages/Contact';
 import Onboarding from './pages/Onboarding';
+import DomainDetail from './pages/DomainDetail';
 import NotFound from './pages/NotFound';
 
 // The embedded Sanity Studio is by far the largest thing we ship. Keeping it
@@ -34,6 +35,7 @@ function App() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/domains/:slug" element={<DomainDetail />} />
           {/* Both onboarding entry points render the same form. */}
           <Route path="/join" element={<Onboarding />} />
           <Route path="/lead-onboarding" element={<Onboarding />} />

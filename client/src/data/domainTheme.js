@@ -68,6 +68,12 @@ const themes = {
     edge: 'rgba(147, 51, 234, 0.65)',
     bloom: 'rgba(147, 51, 234, 0.5)',
   },
+  mentor: {
+    gradient: 'from-amber-400 to-orange-500',
+    border: 'border-amber-500/25 hover:border-amber-500/55',
+    edge: 'rgba(245, 158, 11, 0.65)',
+    bloom: 'rgba(245, 158, 11, 0.5)',
+  },
 };
 
 /** Long and short spellings of every domain the CMS can hand us. */
@@ -86,6 +92,7 @@ const aliases = {
   Creatives: 'creatives',
   Leadership: 'board',
   Board: 'board',
+  Mentor: 'mentor',
 };
 
 /** Abbreviations used when a domain name has to fit inside a role label. */

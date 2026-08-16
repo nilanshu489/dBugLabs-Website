@@ -8,7 +8,7 @@ import { shortDomain } from '../data/domainTheme';
 import { Button, Card, Container, PageHeader } from '../components/ui';
 import cx from '../lib/cx';
 
-const ROLE_OPTIONS = [...BOARD_ROLES, 'Lead', 'Associate', 'Member'];
+const ROLE_OPTIONS = [...BOARD_ROLES, 'Mentor', 'Lead', 'Associate', 'Member'];
 
 /** Derived from the shared domain data so the CMS values can never drift. */
 const DOMAIN_GROUPS = Object.values(domains).map((vertical) => ({
@@ -43,7 +43,7 @@ const Onboarding = () => {
   const [status, setStatus] = useState('idle'); // idle | uploading | success | error
   const [errorMessage, setErrorMessage] = useState('');
 
-  const isBoardRole = BOARD_ROLES.includes(formData.role);
+  const isBoardRole = BOARD_ROLES.includes(formData.role) || formData.role === 'Mentor';
 
   // Object URLs are held by the browser until explicitly released.
   useEffect(
@@ -61,15 +61,17 @@ const Onboarding = () => {
       return;
     }
 
-    // Board seats have no domain; leaving/entering one has to fix it up.
+    // Board seats and Mentor have no specific domain; leaving/entering one fixes it up.
     setFormData((prev) => ({
       ...prev,
       role: value,
       domain: BOARD_ROLES.includes(value)
         ? 'Board'
-        : prev.domain === 'Board'
-          ? 'Web Development'
-          : prev.domain,
+        : value === 'Mentor'
+          ? 'Mentor'
+          : prev.domain === 'Board' || prev.domain === 'Mentor'
+            ? 'Web Development'
+            : prev.domain,
     }));
   };
 
@@ -105,7 +107,7 @@ const Onboarding = () => {
     }
 
     const { role } = formData;
-    const isBoardOrLead = BOARD_ROLES.includes(role) || role === 'Lead' || role === 'Associate';
+    const isBoardOrLead = BOARD_ROLES.includes(role) || role === 'Mentor' || role === 'Lead' || role === 'Associate';
 
     try {
       setStatus('uploading');
@@ -157,7 +159,7 @@ const Onboarding = () => {
         ? inputName
         : (ALLOWED_NAMES.find((n) => n.toLowerCase() === inputName.toLowerCase()) ?? inputName);
 
-      const domain = BOARD_ROLES.includes(role) ? 'Board' : formData.domain;
+      const domain = BOARD_ROLES.includes(role) ? 'Board' : role === 'Mentor' ? 'Mentor' : formData.domain;
 
       if (existing) {
         const patch = writeClient.patch(existing._id).set({ name, role, domain, socials });

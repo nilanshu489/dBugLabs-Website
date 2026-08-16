@@ -1,6 +1,7 @@
 export const projects = [
   {
     title: 'espionage-event',
+    image: '/events-domain.png',
     description: 'Event platform for the Espionage hackathon organized by dBug Labs.',
     techStack: ['TypeScript'],
     team: ['dBug Labs'],
@@ -10,6 +11,7 @@ export const projects = [
   },
   {
     title: 'nova_care',
+    image: '/web-domain.png',
     description: 'Healthcare application built with modern web technologies.',
     techStack: ['TypeScript'],
     team: ['dBug Labs'],
@@ -19,6 +21,7 @@ export const projects = [
   },
   {
     title: 'MLExplorerHub',
+    image: '/aiml-domain.png',
     description: 'ML Domain Projects — a collection of machine learning explorations and experiments.',
     techStack: ['Jupyter Notebook', 'Python'],
     team: ['dBug Labs'],
@@ -28,6 +31,7 @@ export const projects = [
   },
   {
     title: 'IoTExplorerHub',
+    image: '/app-domain.png',
     description: 'IoT Domain Projects — exploring Internet of Things with embedded systems.',
     techStack: ['C++', 'IoT'],
     team: ['dBug Labs'],
@@ -37,6 +41,7 @@ export const projects = [
   },
   {
     title: 'SensorExplorer',
+    image: '/qa-domain.png',
     description: 'Research on different types of sensors and their applications.',
     techStack: ['Python', 'IoT'],
     team: ['dBug Labs'],
@@ -46,6 +51,7 @@ export const projects = [
   },
   {
     title: 'SG-REPOSITARY',
+    image: '/initiatives/skills.png',
     description: 'Study group repository with shared learning resources and Colab notebooks.',
     techStack: ['Python', 'Jupyter'],
     team: ['dBug Labs'],
@@ -55,6 +61,7 @@ export const projects = [
   },
   {
     title: 'lacasadeflutter',
+    image: '/app-domain.png',
     description: 'Flutter development projects and learning resources.',
     techStack: ['Flutter', 'Dart'],
     team: ['dBug Labs'],
