@@ -29,9 +29,11 @@ const DOMAIN_TOKENS = [
   ['app'],
   ['qa', 'testing'],
   ['ai'],
+  ['cyber', 'security'],
   ['event'],
   ['sponsor'],
   ['pr', 'public relation'],
+  ['media'],
   ['creative'],
 ];
 
@@ -70,7 +72,7 @@ const mergeMembersLists = (defaults, fetched, domains, excludedRoles) => {
 /**
  * Everyone holding a given seat. "Lead"/"Associate" is the current shape;
  * older documents carry the domain in the role itself ("Web Dev Lead"), and
- * anything ending in the right word counts — except the two board seats,
+ * anything ending in the right word counts — except the board seats,
  * which are listed separately.
  */
 const findHolders = (people, { kind, domain, legacyRole }) => {
@@ -80,7 +82,14 @@ const findHolders = (people, { kind, domain, legacyRole }) => {
   return people.filter((person) => {
     if (!isDomainMatch(person.domain, domain)) return false;
     if (person.role === canonical || person.role === legacyRole) return true;
-    if (person.role === 'Technical Lead' || person.role === 'Corporate Lead') return false;
+    if (
+      person.role === 'Technical Lead' ||
+      person.role === 'Corporate Lead' ||
+      person.role === 'Corporate Head' ||
+      person.role === 'Co-Corporate Head'
+    ) {
+      return false;
+    }
     return normalise(person.role).endsWith(suffix);
   });
 };
@@ -88,15 +97,62 @@ const findHolders = (people, { kind, domain, legacyRole }) => {
 const initialPositions = () =>
   Object.fromEntries(POSITIONS.map((position) => [position.key, [placeholderFor(position)]]));
 
-const initialBoard = () =>
-  BOARD_ROLES.map((role) => ({
-    name: 'To Be Announced',
-    role,
-    domain: 'Board',
-    bio: '',
-    image: '',
-    socials: {},
-  }));
+const BOARD_SEAT_CONFIGS = [
+  {
+    role: 'Secretary',
+    matcher: (r) => normalise(r) === 'secretary',
+  },
+  {
+    role: 'Joint Secretary',
+    matcher: (r) => normalise(r).includes('joint') && normalise(r).includes('sec'),
+    allowMultiple: true,
+  },
+  {
+    role: 'Technical Lead',
+    matcher: (r) => normalise(r) === 'technical lead' || normalise(r) === 'tech head',
+  },
+  {
+    role: 'Corporate Head',
+    matcher: (r) =>
+      normalise(r) === 'corporate head' ||
+      normalise(r) === 'corp head' ||
+      normalise(r) === 'corporate lead',
+  },
+  {
+    role: 'Co-Corporate Head',
+    matcher: (r) =>
+      normalise(r) === 'co-corporate head' ||
+      normalise(r) === 'co corporate head' ||
+      normalise(r) === 'co corp head',
+  },
+];
+
+const resolveBoard = (leads) => {
+  return BOARD_SEAT_CONFIGS.flatMap((seat) => {
+    const holders = leads.filter(
+      (lead) => (lead.domain === 'Board' || !lead.domain) && seat.matcher(lead.role),
+    );
+    if (holders.length > 0) {
+      return holders.map((h) => ({
+        ...h,
+        domain: 'Board',
+        role: seat.role,
+      }));
+    }
+    return [
+      {
+        name: 'To Be Announced',
+        role: seat.role,
+        domain: 'Board',
+        bio: '',
+        image: '',
+        socials: {},
+      },
+    ];
+  });
+};
+
+const initialBoard = () => resolveBoard([]);
 
 /**
  * Team roster, merged from two Sanity schemas over a hardcoded fallback.
@@ -138,9 +194,7 @@ export const useTeamData = () => {
         }
 
         if (leads.length > 0) {
-          setBoardMembers((prev) =>
-            prev.map((seat) => leads.find((lead) => lead.role === seat.role) ?? seat),
-          );
+          setBoardMembers(resolveBoard(leads));
           const fetchedMentors = leads.filter(
             (m) => m.role === 'Mentor' || m.domain === 'Mentor',
           );

@@ -62,6 +62,18 @@ const themes = {
     edge: 'rgba(236, 72, 153, 0.6)',
     bloom: 'rgba(236, 72, 153, 0.45)',
   },
+  cybersec: {
+    gradient: 'from-emerald-500 to-cyan-500',
+    border: 'border-emerald-500/25 hover:border-emerald-500/55',
+    edge: 'rgba(16, 185, 129, 0.6)',
+    bloom: 'rgba(16, 185, 129, 0.45)',
+  },
+  media: {
+    gradient: 'from-violet-500 to-fuchsia-500',
+    border: 'border-violet-500/25 hover:border-violet-500/55',
+    edge: 'rgba(139, 92, 246, 0.6)',
+    bloom: 'rgba(139, 92, 246, 0.45)',
+  },
   board: {
     gradient: 'from-purple-600 to-pink-600',
     border: 'border-purple-500/25 hover:border-purple-500/55',
@@ -85,10 +97,14 @@ const aliases = {
   'QA & Testing': 'qa',
   'QA and Testing': 'qa',
   'AI/ML': 'aiml',
+  Cybersecurity: 'cybersec',
+  Cybersec: 'cybersec',
+  'Cyber Security': 'cybersec',
   Events: 'events',
   Sponsorship: 'sponsorship',
   'Public Relations': 'pr',
   PR: 'pr',
+  Media: 'media',
   Creatives: 'creatives',
   Leadership: 'board',
   Board: 'board',
@@ -102,6 +118,8 @@ const shortNames = {
   'App Development': 'App Dev',
   'QA & Testing': 'QA',
   'QA and Testing': 'QA',
+  Cybersecurity: 'Cybersec',
+  'Cyber Security': 'Cybersec',
 };
 
 export const getDomainTheme = (domain) => themes[aliases[domain]] ?? themes.aiml;

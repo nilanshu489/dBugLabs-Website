@@ -16,13 +16,16 @@ const member = (name, domain) => ({
 
 /** Names accepted by the member onboarding form at /join. */
 export const ALLOWED_NAMES = [
-  'Dhriti', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh',
+  'Shaurya Ojha', 'Nilanshu Raj', 'Nilanshu', 'Shivansh Anand Thakur', 'Shivansh',
+  'Dhriti', 'Dhriti Gupta', 'Ayush Rudra', 'Chandra Pratap Singh', 'Aditya Raj Singh',
   'Roudra Ghosal', 'Raja Abhiram', 'Mutthuram S R', 'Shrutiparna Phookan',
-  'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Aanvi Gandhi',
-  'Dharshini', 'Shashank Singh', 'Piyush Kumar',
+  'Saalini', 'Vaishnavi Jagtap', 'Tejash Burle', 'Radha Raman Panda', 'Aanvi Gandhi',
+  'Dharshini', 'Shashank Singh', 'Piyush Kumar', 'PIYUSH KUMAR',
+  'Swarali patil', 'Swarali Patil', 'Kishan Chauhan',
   'T Sampath Eswar', 'Ritesh Rajpal', 'M Vaishnavi Sai', 'Asrita AVL',
   'Shiva Krishna', 'Vanshika Singh', 'Parnika Jain', 'Mridul Krishna',
-  'Charan Peddi', 'Radha Raman Panda', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R',
+  'Charan Peddi', 'Snehil Kumar Tiwari', 'Prakhar Pandey', 'Mithran G R',
+  'Vaibhav Singh', 'Ashmit Singh ', 'Kanika Arora',
 ];
 
 /**
@@ -32,16 +35,22 @@ export const ALLOWED_NAMES = [
  * against ALLOWED_NAMES, so this list is not yet consulted anywhere.
  */
 export const ALLOWED_LEAD_NAMES = [
-  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead',
-  'Web Dev Lead', 'AI/ML Lead', 'Events Lead', 'Sponsorship Lead',
-  'PR Lead', 'Creatives Lead',
-  'Web Dev Associate', 'AI/ML Associate', 'Events Associate',
-  'Sponsorship Associate', 'PR Associate', 'Creatives Associate',
+  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Head', 'Co-Corporate Head', 'Corporate Lead',
+  'Web Dev Lead', 'AI/ML Lead', 'Cybersecurity Lead', 'Cybersec Lead', 'App Dev Lead', 'QA & Testing Lead',
+  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Media Lead', 'Creatives Lead',
+  'Web Dev Associate', 'AI/ML Associate', 'Cybersecurity Associate', 'App Dev Associate', 'QA & Testing Associate',
+  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Media Associate', 'Creatives Associate',
   'Technical Associate', 'Corporate Associate',
 ];
 
 /** Board seats, in the order the Team page lists them. */
-export const BOARD_ROLES = ['Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Lead'];
+export const BOARD_ROLES = [
+  'Secretary',
+  'Joint Secretary',
+  'Technical Lead',
+  'Corporate Head',
+  'Co-Corporate Head',
+];
 
 export const DEFAULT_MENTORS = [];
 
@@ -49,39 +58,34 @@ export const DEFAULT_MENTORS = [];
 export const TECH_DOMAINS = [
   'Web Development', 'Web Dev', 'App Development', 'App Dev',
   'QA & Testing', 'QA and Testing', 'AI/ML', 'Technical',
+  'Cybersecurity', 'Cybersec', 'Cyber Security',
 ];
 
-export const CORP_DOMAINS = ['Creatives', 'Sponsorship', 'Events', 'Public Relations', 'PR'];
+export const CORP_DOMAINS = [
+  'Creatives', 'Sponsorship', 'Events', 'Public Relations', 'PR', 'Media',
+];
 
 /** Roles that belong in the Leads/Associates rows, so never in "Members". */
 export const EXCLUDED_TECH_ROLES = [
-  'Web Dev Lead', 'App Dev Lead', 'QA Lead', 'QA & Testing Lead', 'AI/ML Lead', 'Technical Lead', 'Lead',
-  'Web Dev Associate', 'App Dev Associate', 'QA Associate', 'QA & Testing Associate', 'AI/ML Associate', 'Technical Associate', 'Associate',
+  'Web Dev Lead', 'App Dev Lead', 'QA Lead', 'QA & Testing Lead', 'AI/ML Lead', 'Cybersecurity Lead', 'Cybersec Lead', 'Technical Lead', 'Lead',
+  'Web Dev Associate', 'App Dev Associate', 'QA Associate', 'QA & Testing Associate', 'AI/ML Associate', 'Cybersecurity Associate', 'Cybersec Associate', 'Technical Associate', 'Associate',
 ];
 
 export const EXCLUDED_CORP_ROLES = [
-  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Creatives Lead', 'Corporate Lead', 'Lead',
-  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Creatives Associate', 'Corporate Associate', 'Associate',
+  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Media Lead', 'Creatives Lead', 'Corporate Lead', 'Corporate Head', 'Co-Corporate Head', 'Lead',
+  'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Media Associate', 'Creatives Associate', 'Corporate Associate', 'Associate',
 ];
 
 export const DEFAULT_TECHNICAL_MEMBERS = [
-  member('Dhriti', 'AI/ML'),
   member('Ayush Rudra', 'Web Development'),
-  member('Chandra Pratap Singh', 'Web Development'),
-  member('Aditya Raj Singh', 'Web Development'),
   member('Roudra Ghosal', 'AI/ML'),
   member('Raja Abhiram', 'AI/ML'),
   member('Mutthuram S R', 'Web Development'),
   member('Shrutiparna Phookan', 'Web Development'),
-  member('Saalini', 'AI/ML'),
-  member('Vaishnavi Jagtap', 'Web Development'),
-  member('Aanvi Gandhi', 'Technical'),
+  member('Aanvi Gandhi', 'AI/ML'),
 ];
 
 export const DEFAULT_CORPORATE_MEMBERS = [
-  member('Dharshini', 'Creatives'),
-  member('Shashank Singh', 'Creatives'),
-  member('Piyush Kumar', 'Creatives'),
   member('T Sampath Eswar', 'Sponsorship'),
   member('Ritesh Rajpal', 'Sponsorship'),
   member('M Vaishnavi Sai', 'Sponsorship'),
@@ -92,9 +96,10 @@ export const DEFAULT_CORPORATE_MEMBERS = [
   member('Mithran G R', 'Events'),
   member('Mridul Krishna', 'Public Relations'),
   member('Charan Peddi', 'Public Relations'),
-  member('Radha Raman Panda', 'Public Relations'),
-  member('Snehil Kumar Tiwari', 'Public Relations'),
   member('Prakhar Pandey', 'Sponsorship'),
+  member('Vaibhav Singh', 'Events'),
+  member('Ashmit Singh ', 'Creatives'),
+  member('Kanika Arora', 'Events'),
 ];
 
 /**
@@ -105,24 +110,28 @@ export const DEFAULT_CORPORATE_MEMBERS = [
  * "Lead"/"Associate" + domain shape.
  */
 export const POSITIONS = [
-  { key: 'webDevLead', group: 'technical', kind: 'lead', domain: 'Web Development', legacyRole: 'Web Dev Lead' },
-  { key: 'appDevLead', group: 'technical', kind: 'lead', domain: 'App Development', legacyRole: 'App Dev Lead' },
-  { key: 'qaLead', group: 'technical', kind: 'lead', domain: 'QA & Testing', legacyRole: 'QA & Testing Lead' },
   { key: 'aimlLead', group: 'technical', kind: 'lead', domain: 'AI/ML', legacyRole: 'AI/ML Lead' },
+  { key: 'webDevLead', group: 'technical', kind: 'lead', domain: 'Web Development', legacyRole: 'Web Dev Lead' },
+  { key: 'cybersecLead', group: 'technical', kind: 'lead', domain: 'Cybersecurity', legacyRole: 'Cybersecurity Lead' },
+  { key: 'qaLead', group: 'technical', kind: 'lead', domain: 'QA & Testing', legacyRole: 'QA & Testing Lead' },
+  { key: 'appDevLead', group: 'technical', kind: 'lead', domain: 'App Development', legacyRole: 'App Dev Lead' },
 
-  { key: 'webDevAssociate', group: 'technical', kind: 'associate', domain: 'Web Development', legacyRole: 'Web Dev Associate' },
-  { key: 'appDevAssociate', group: 'technical', kind: 'associate', domain: 'App Development', legacyRole: 'App Dev Associate' },
-  { key: 'qaAssociate', group: 'technical', kind: 'associate', domain: 'QA & Testing', legacyRole: 'QA & Testing Associate' },
   { key: 'aimlAssociate', group: 'technical', kind: 'associate', domain: 'AI/ML', legacyRole: 'AI/ML Associate' },
+  { key: 'webDevAssociate', group: 'technical', kind: 'associate', domain: 'Web Development', legacyRole: 'Web Dev Associate' },
+  { key: 'cybersecAssociate', group: 'technical', kind: 'associate', domain: 'Cybersecurity', legacyRole: 'Cybersecurity Associate' },
+  { key: 'qaAssociate', group: 'technical', kind: 'associate', domain: 'QA & Testing', legacyRole: 'QA & Testing Associate' },
+  { key: 'appDevAssociate', group: 'technical', kind: 'associate', domain: 'App Development', legacyRole: 'App Dev Associate' },
 
   { key: 'eventsLead', group: 'corporate', kind: 'lead', domain: 'Events', legacyRole: 'Events Lead' },
-  { key: 'sponsorshipLead', group: 'corporate', kind: 'lead', domain: 'Sponsorship', legacyRole: 'Sponsorship Lead' },
   { key: 'prLead', group: 'corporate', kind: 'lead', domain: 'Public Relations', legacyRole: 'PR Lead' },
+  { key: 'sponsorshipLead', group: 'corporate', kind: 'lead', domain: 'Sponsorship', legacyRole: 'Sponsorship Lead' },
+  { key: 'mediaLead', group: 'corporate', kind: 'lead', domain: 'Media', legacyRole: 'Media Lead' },
   { key: 'creativesLead', group: 'corporate', kind: 'lead', domain: 'Creatives', legacyRole: 'Creatives Lead' },
 
   { key: 'eventsAssociate', group: 'corporate', kind: 'associate', domain: 'Events', legacyRole: 'Events Associate' },
-  { key: 'sponsorshipAssociate', group: 'corporate', kind: 'associate', domain: 'Sponsorship', legacyRole: 'Sponsorship Associate' },
   { key: 'prAssociate', group: 'corporate', kind: 'associate', domain: 'Public Relations', legacyRole: 'PR Associate' },
+  { key: 'sponsorshipAssociate', group: 'corporate', kind: 'associate', domain: 'Sponsorship', legacyRole: 'Sponsorship Associate' },
+  { key: 'mediaAssociate', group: 'corporate', kind: 'associate', domain: 'Media', legacyRole: 'Media Associate' },
   { key: 'creativesAssociate', group: 'corporate', kind: 'associate', domain: 'Creatives', legacyRole: 'Creatives Associate' },
 ];
 
