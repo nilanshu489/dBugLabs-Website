@@ -35,7 +35,7 @@ export const ALLOWED_NAMES = [
  * against ALLOWED_NAMES, so this list is not yet consulted anywhere.
  */
 export const ALLOWED_LEAD_NAMES = [
-  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Head', 'Co-Corporate Head', 'Corporate Lead',
+  'Secretary', 'Joint Secretary', 'Technical Lead', 'Corporate Head', 'Corporate Lead',
   'Web Dev Lead', 'AI/ML Lead', 'Cybersecurity Lead', 'Cybersec Lead', 'App Dev Lead', 'QA & Testing Lead',
   'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Media Lead', 'Creatives Lead',
   'Web Dev Associate', 'AI/ML Associate', 'Cybersecurity Associate', 'App Dev Associate', 'QA & Testing Associate',
@@ -49,7 +49,6 @@ export const BOARD_ROLES = [
   'Joint Secretary',
   'Technical Lead',
   'Corporate Head',
-  'Co-Corporate Head',
 ];
 
 export const DEFAULT_MENTORS = [];
@@ -72,7 +71,7 @@ export const EXCLUDED_TECH_ROLES = [
 ];
 
 export const EXCLUDED_CORP_ROLES = [
-  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Media Lead', 'Creatives Lead', 'Corporate Lead', 'Corporate Head', 'Co-Corporate Head', 'Lead',
+  'Events Lead', 'Sponsorship Lead', 'PR Lead', 'Media Lead', 'Creatives Lead', 'Corporate Lead', 'Corporate Head', 'Lead',
   'Events Associate', 'Sponsorship Associate', 'PR Associate', 'Media Associate', 'Creatives Associate', 'Corporate Associate', 'Associate',
 ];
 
@@ -124,7 +123,6 @@ export const POSITIONS = [
 
   { key: 'eventsLead', group: 'corporate', kind: 'lead', domain: 'Events', legacyRole: 'Events Lead' },
   { key: 'prLead', group: 'corporate', kind: 'lead', domain: 'Public Relations', legacyRole: 'PR Lead' },
-  { key: 'sponsorshipLead', group: 'corporate', kind: 'lead', domain: 'Sponsorship', legacyRole: 'Sponsorship Lead' },
   { key: 'mediaLead', group: 'corporate', kind: 'lead', domain: 'Media', legacyRole: 'Media Lead' },
   { key: 'creativesLead', group: 'corporate', kind: 'lead', domain: 'Creatives', legacyRole: 'Creatives Lead' },
 

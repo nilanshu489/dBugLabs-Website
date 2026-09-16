@@ -85,8 +85,7 @@ const findHolders = (people, { kind, domain, legacyRole }) => {
     if (
       person.role === 'Technical Lead' ||
       person.role === 'Corporate Lead' ||
-      person.role === 'Corporate Head' ||
-      person.role === 'Co-Corporate Head'
+      person.role === 'Corporate Head'
     ) {
       return false;
     }
@@ -117,13 +116,6 @@ const BOARD_SEAT_CONFIGS = [
       normalise(r) === 'corporate head' ||
       normalise(r) === 'corp head' ||
       normalise(r) === 'corporate lead',
-  },
-  {
-    role: 'Co-Corporate Head',
-    matcher: (r) =>
-      normalise(r) === 'co-corporate head' ||
-      normalise(r) === 'co corporate head' ||
-      normalise(r) === 'co corp head',
   },
 ];
 

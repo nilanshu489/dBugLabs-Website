@@ -19,7 +19,6 @@ export const boardAndLeadType = {
           { title: 'Joint Secretary', value: 'Joint Secretary' },
           { title: 'Technical Lead', value: 'Technical Lead' },
           { title: 'Corporate Head', value: 'Corporate Head' },
-          { title: 'Co-Corporate Head', value: 'Co-Corporate Head' },
           { title: 'Corporate Lead', value: 'Corporate Lead' },
           { title: 'Mentor', value: 'Mentor' },
           { title: 'Lead', value: 'Lead' },
